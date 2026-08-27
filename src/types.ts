@@ -212,6 +212,7 @@ export interface StoreSettings {
   currencySymbol?: string;
   bkashNumber?: string;
   nagadNumber?: string;
+  heroBackgroundImage?: string;
   facebookUrl?: string;
   youtubeUrl?: string;
   instagramUrl?: string;

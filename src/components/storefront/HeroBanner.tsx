@@ -3,7 +3,9 @@ import { useStore } from '../../context/StoreContext';
 import { Leaf, Sprout, ShieldCheck, ShoppingBag, ArrowRight } from 'lucide-react';
 
 export const HeroBanner: React.FC = () => {
-  const { language, setCurrentView, setSelectedCategory } = useStore();
+  const { language, setCurrentView, setSelectedCategory, storeSettings } = useStore();
+
+  const heroImageSrc = storeSettings?.heroBackgroundImage || '/hero-pureghor-store.jpg';
 
   return (
     <div className="max-w-7xl mx-auto px-4 pt-4 sm:pt-6">
@@ -14,7 +16,7 @@ export const HeroBanner: React.FC = () => {
         {/* Background Store & Interior Image on the Right */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <img
-            src="/hero-pureghor-store.jpg"
+            src={heroImageSrc}
             alt="PureGhor Organic Store Counter"
             className="w-full h-full object-cover object-right md:object-center"
             referrerPolicy="no-referrer"

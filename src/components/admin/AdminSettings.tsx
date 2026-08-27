@@ -112,6 +112,44 @@ export const AdminSettings: React.FC = () => {
               className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:outline-none"
             />
           </div>
+
+          {/* Hero Banner Background Image */}
+          <div className="pt-2 border-t border-slate-700/60">
+            <label className="block font-semibold text-slate-300 mb-1">
+              হিরো সেকশন ব্যাকগ্রাউন্ড ইমেজ (URL বা আপলোড)
+            </label>
+            <div className="flex flex-col sm:flex-row gap-3 items-start">
+              <input
+                type="text"
+                value={settings.heroBackgroundImage || ''}
+                onChange={e => handleChange('heroBackgroundImage', e.target.value)}
+                placeholder="ইমেজ URL অথবা Google Drive সরাসরি লিঙ্ক বা নিচের বোতাম দিয়ে আপলোড করুন"
+                className="flex-1 w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:outline-none font-mono text-xs"
+              />
+              <label className="bg-emerald-700 hover:bg-emerald-600 text-white font-bold px-4 py-2.5 rounded-lg text-xs cursor-pointer shrink-0 transition-colors">
+                <span>ছবি আপলোড করুন</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = () => {
+                        handleChange('heroBackgroundImage', reader.result as string);
+                        addToast('হিরো ব্যাকগ্রাউন্ড ছবি লোড হয়েছে! এবার নিচের সংরক্ষণ বাটনে ক্লিক করুন।', 'success');
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+              </label>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-1">
+              * আপনি যেকোনো ইমেজ ফাইল সরাসরি আপলোড করতে পারেন অথবা Google Drive / ImgBB বা যেকোনো ইমেজ লিংক এখানে পেস্ট করতে পারেন।
+            </p>
+          </div>
         </div>
 
         {/* Shipping & Delivery */}
