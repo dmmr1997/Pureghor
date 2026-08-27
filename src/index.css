@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-pg-forest: #004d1a;
+    --color-pg-leaf: #52b202;
+    --color-pg-dark: #003612;
+    --color-pg-light: #f2fbe8;
+  }
+
+  * {
+    font-family: 'Hind Siliguri', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+/* Custom scrollbar matching PureGhor logo colors */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f4f6f3;
+}
+::-webkit-scrollbar-thumb {
+  background: #a3d977;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #004d1a;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.94; transform: scale(1.02); }
+}
+
+.animate-pulse-slow {
+  animation: pulse-subtle 4s ease-in-out infinite;
+}
+
+/* Logo and brand custom gradients */
+.bg-pg-gradient {
+  background: linear-gradient(135deg, #004d1a 0%, #003b14 60%, #52b202 100%);
+}
+
+.bg-pg-leaf-gradient {
+  background: linear-gradient(135deg, #52b202 0%, #3e8800 100%);
+}

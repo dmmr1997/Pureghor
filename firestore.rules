@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Products, Categories, Banners, Coupons, Settings, Reviews: Public Read
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    match /banners/{bannerId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    match /coupons/{couponId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    match /orders/{orderId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if true;
+    }
+    
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if true;
+    }
+    
+    match /customers/{customerId} {
+      allow read, write: if true;
+    }
+  }
+}

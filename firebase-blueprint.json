@@ -1,0 +1,125 @@
+{
+  "entities": {
+    "products": {
+      "title": "Products",
+      "description": "Organic products catalog for PureGhor",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "nameBn": { "type": "string" },
+        "nameEn": { "type": "string" },
+        "slug": { "type": "string" },
+        "categoryId": { "type": "string" },
+        "price": { "type": "number" },
+        "originalPrice": { "type": "number" },
+        "stock": { "type": "number" },
+        "weight": { "type": "string" },
+        "unit": { "type": "string" },
+        "images": { "type": "array", "items": { "type": "string" } },
+        "isPopular": { "type": "boolean" },
+        "isFeatured": { "type": "boolean" },
+        "isOrganic": { "type": "boolean" },
+        "rating": { "type": "number" },
+        "reviewCount": { "type": "number" }
+      }
+    },
+    "categories": {
+      "title": "Categories",
+      "description": "Product categories",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "nameBn": { "type": "string" },
+        "nameEn": { "type": "string" },
+        "slug": { "type": "string" },
+        "icon": { "type": "string" },
+        "order": { "type": "number" },
+        "active": { "type": "boolean" }
+      }
+    },
+    "orders": {
+      "title": "Orders",
+      "description": "Customer purchase orders",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "orderNumber": { "type": "string" },
+        "customer": { "type": "object" },
+        "items": { "type": "array" },
+        "subtotal": { "type": "number" },
+        "deliveryCharge": { "type": "number" },
+        "discount": { "type": "number" },
+        "total": { "type": "number" },
+        "paymentMethod": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      }
+    },
+    "coupons": {
+      "title": "Coupons",
+      "description": "Promotional discount codes",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string" },
+        "discountType": { "type": "string" },
+        "discountValue": { "type": "number" },
+        "minOrderAmount": { "type": "number" },
+        "active": { "type": "boolean" }
+      }
+    },
+    "settings": {
+      "title": "StoreSettings",
+      "description": "Global store settings and hotline numbers",
+      "type": "object",
+      "properties": {
+        "storeNameBn": { "type": "string" },
+        "storeNameEn": { "type": "string" },
+        "phonePrimary": { "type": "string" },
+        "phoneSecondary": { "type": "string" },
+        "email": { "type": "string" },
+        "deliveryChargeInsideDhaka": { "type": "number" },
+        "deliveryChargeOutsideDhaka": { "type": "number" }
+      }
+    },
+    "reviews": {
+      "title": "Reviews",
+      "description": "Product customer reviews",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "productId": { "type": "string" },
+        "userName": { "type": "string" },
+        "rating": { "type": "number" },
+        "comment": { "type": "string" },
+        "createdAt": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": "products",
+      "description": "PureGhor products"
+    },
+    "/categories/{categoryId}": {
+      "schema": "categories",
+      "description": "Product categories"
+    },
+    "/orders/{orderId}": {
+      "schema": "orders",
+      "description": "Store orders"
+    },
+    "/coupons/{couponId}": {
+      "schema": "coupons",
+      "description": "Store coupons"
+    },
+    "/settings/{settingId}": {
+      "schema": "settings",
+      "description": "Configuration documents"
+    },
+    "/reviews/{reviewId}": {
+      "schema": "reviews",
+      "description": "Product reviews"
+    }
+  }
+}

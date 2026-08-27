@@ -1,0 +1,6 @@
+{
+  "name": "PureGhor – Best Organic Shop",
+  "description": "Full-stack organic e-commerce platform and administration panel for PureGhor (পিউর ঘর) with authentic Bengali and English support, product catalog, 1-click quick checkout, live order tracking, and inventory management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
