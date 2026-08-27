@@ -74,13 +74,13 @@ export const Header: React.FC = () => {
       {/* Top Announcement & Quick Contact Bar (Clean & Streamlined) */}
       <div className="bg-[#003612] text-white text-xs py-1.5 px-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-          {/* Announcement or Tagline */}
+          {/* Announcement */}
           <div className="flex items-center gap-2 overflow-hidden text-left">
             <span className="bg-[#52b202] text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0">
-              {language === 'bn' ? '১০০% বিশুদ্ধ' : '100% PURE'}
+              ১০০% বিশুদ্ধ
             </span>
             <p className="truncate text-[11px] sm:text-xs text-white/90 font-medium">
-              {language === 'bn' ? storeSettings.announcementBn : storeSettings.announcementEn}
+              {storeSettings.announcementBn || '🎉 পিউর ঘরে বিশেষ অফার চলছে! সারাদেশে দ্রুত হোম ডেলিভারি ও ক্যাশ অন ডেলিভারি সুবিধা!'}
             </p>
           </div>
 
@@ -91,17 +91,7 @@ export const Header: React.FC = () => {
               className="hover:text-[#52b202] transition-colors flex items-center gap-1 cursor-pointer font-medium"
             >
               <Truck size={13} className="text-[#52b202]" />
-              <span>{language === 'bn' ? 'অর্ডার ট্র্যাক' : 'Track Order'}</span>
-            </button>
-
-            <span className="text-white/30 hidden sm:inline">|</span>
-
-            {/* Language Switcher */}
-            <button
-              onClick={() => setLanguage(language === 'bn' ? 'en' : 'bn')}
-              className="hover:text-emerald-300 font-bold transition-colors px-1 cursor-pointer"
-            >
-              {language === 'bn' ? 'EN' : 'বাং'}
+              <span>অর্ডার ট্র্যাক</span>
             </button>
 
             <span className="text-white/30 hidden sm:inline">|</span>
@@ -116,7 +106,7 @@ export const Header: React.FC = () => {
               }`}
             >
               <LayoutDashboard size={11} />
-              <span>{currentView === 'admin' ? 'Store' : 'Admin'}</span>
+              <span>{currentView === 'admin' ? 'স্টোর' : 'অ্যাডমিন'}</span>
             </button>
           </div>
         </div>
@@ -274,22 +264,22 @@ export const Header: React.FC = () => {
                 className="bg-[#52b202] hover:bg-[#449900] text-white px-4 py-2 rounded-lg flex items-center gap-2 font-bold transition-colors cursor-pointer shadow-xs mr-2"
               >
                 <Layers size={16} />
-                <span>{language === 'bn' ? 'সকল ক্যাটাগরি' : 'All Categories'}</span>
+                <span>সকল ক্যাটাগরি</span>
                 <ChevronDown size={14} className={`transition-transform duration-200 ${categoryDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
 
-              {/* Clean Category Mega Dropdown */}
+              {/* Clean Category Dropdown */}
               {categoryDropdownOpen && (
                 <div className="absolute top-full left-0 mt-1.5 w-72 bg-white text-gray-800 rounded-xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                   <div className="px-3 py-1.5 border-b border-gray-100 text-[11px] font-extrabold uppercase tracking-wider text-gray-400">
-                    {language === 'bn' ? 'প্রধান ক্যাটাগরিসমূহ' : 'Main Categories'}
+                    প্রধান ক্যাটাগরিসমূহ
                   </div>
                   <div className="py-1">
                     <button
                       onClick={() => handleCategorySelect(null)}
                       className="w-full px-3.5 py-2 text-left text-xs sm:text-sm font-semibold hover:bg-emerald-50 hover:text-[#004d1a] flex items-center justify-between cursor-pointer"
                     >
-                      <span>{language === 'bn' ? 'সকল পণ্য দেখুন' : 'View All Products'}</span>
+                      <span>সকল পণ্য দেখুন</span>
                       <ArrowRight size={14} className="text-gray-400" />
                     </button>
                     {categories.map(cat => (
@@ -302,7 +292,7 @@ export const Header: React.FC = () => {
                       >
                         <span className="flex items-center gap-2">
                           <span className="text-base">{cat.icon}</span>
-                          <span>{language === 'bn' ? cat.nameBn : cat.nameEn}</span>
+                          <span>{cat.nameBn}</span>
                         </span>
                       </button>
                     ))}
@@ -324,7 +314,7 @@ export const Header: React.FC = () => {
                   : 'hover:bg-white/10 text-white/90'
               }`}
             >
-              {language === 'bn' ? 'হোম' : 'Home'}
+              হোমপেজ
             </button>
 
             {/* 3. All Products */}
@@ -339,43 +329,10 @@ export const Header: React.FC = () => {
                   : 'hover:bg-white/10 text-white/90'
               }`}
             >
-              {language === 'bn' ? 'সকল পণ্য' : 'All Products'}
+              সকল পণ্য
             </button>
 
-            {/* 4. Honey & Ghee (Top Popular Category) */}
-            <button
-              onClick={() => {
-                const honeyCat = categories.find(c => c.slug.includes('honey') || c.id === 'cat-1');
-                handleCategorySelect(honeyCat?.id || 'cat-1');
-              }}
-              className="px-3 py-2 rounded-lg hover:bg-white/10 text-white/90 transition-colors whitespace-nowrap cursor-pointer"
-            >
-              {language === 'bn' ? 'মধু ও ঘি' : 'Honey & Ghee'}
-            </button>
-
-            {/* 5. Mustard Oil */}
-            <button
-              onClick={() => {
-                const oilCat = categories.find(c => c.slug.includes('oil') || c.id === 'cat-2');
-                handleCategorySelect(oilCat?.id || 'cat-2');
-              }}
-              className="px-3 py-2 rounded-lg hover:bg-white/10 text-white/90 transition-colors whitespace-nowrap cursor-pointer"
-            >
-              {language === 'bn' ? 'খাঁটি তেল' : 'Pure Oil'}
-            </button>
-
-            {/* 6. Dry Fruits & Nuts */}
-            <button
-              onClick={() => {
-                const nutCat = categories.find(c => c.slug.includes('dry') || c.slug.includes('nut') || c.id === 'cat-5');
-                handleCategorySelect(nutCat?.id || 'cat-5');
-              }}
-              className="px-3 py-2 rounded-lg hover:bg-white/10 text-white/90 transition-colors whitespace-nowrap cursor-pointer"
-            >
-              {language === 'bn' ? 'ড্রাই ফ্রুটস ও বাদাম' : 'Dry Fruits & Nuts'}
-            </button>
-
-            {/* 7. Special Deals */}
+            {/* 4. Special Hot Deals */}
             <button
               onClick={() => {
                 setSelectedCategory(null);
@@ -388,14 +345,27 @@ export const Header: React.FC = () => {
               }`}
             >
               <Flame size={14} className="text-amber-400 animate-bounce" />
-              <span>{language === 'bn' ? 'হট অফার' : 'Hot Offers'}</span>
+              <span>হট অফার</span>
+            </button>
+
+            {/* 5. Order Tracking */}
+            <button
+              onClick={() => setCurrentView('track-order')}
+              className={`px-3 py-2 rounded-lg transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                currentView === 'track-order'
+                  ? 'bg-white/20 text-white font-bold'
+                  : 'hover:bg-white/10 text-white/90'
+              }`}
+            >
+              <Truck size={14} />
+              <span>অর্ডার ট্র্যাক</span>
             </button>
           </div>
 
           {/* Clean Right Notice: Free Shipping & Delivery Info */}
           <div className="flex items-center gap-3 text-white/90 text-xs py-1">
             <span className="text-[#a3d977] font-semibold flex items-center gap-1">
-              <Truck size={14} /> {language === 'bn' ? 'সারা বাংলাদেশে ক্যাশ অন ডেলিভারি' : 'Cash on Delivery Nationwide'}
+              <Truck size={14} /> সারা বাংলাদেশে ক্যাশ অন ডেলিভারি
             </span>
           </div>
         </div>
@@ -430,15 +400,15 @@ export const Header: React.FC = () => {
               <div className="space-y-1">
                 <button
                   onClick={() => {
-                    setSelectedCategory(null);
                     setCurrentView('home');
+                    setSelectedCategory(null);
                     setMobileMenuOpen(false);
                   }}
                   className={`w-full text-left px-3.5 py-2.5 rounded-xl font-bold text-sm transition-colors flex items-center justify-between ${
                     currentView === 'home' ? 'bg-emerald-50 text-[#004d1a]' : 'text-gray-800 hover:bg-gray-50'
                   }`}
                 >
-                  <span>{language === 'bn' ? 'হোমপেজ' : 'Homepage'}</span>
+                  <span>হোমপেজ</span>
                 </button>
 
                 <button
@@ -453,7 +423,7 @@ export const Header: React.FC = () => {
                       : 'text-gray-800 hover:bg-gray-50'
                   }`}
                 >
-                  <span>{language === 'bn' ? 'সকল পণ্য' : 'All Products'}</span>
+                  <span>সকল পণ্য</span>
                 </button>
 
                 <button
@@ -466,7 +436,7 @@ export const Header: React.FC = () => {
                 >
                   <span className="flex items-center gap-1.5">
                     <Flame size={16} className="text-amber-600" />
-                    <span>{language === 'bn' ? 'হট অফার ও ডিসকাউন্ট' : 'Hot Offers'}</span>
+                    <span>হট অফার ও ডিসকাউন্ট</span>
                   </span>
                   <span className="text-[10px] bg-rose-600 text-white font-extrabold px-1.5 py-0.5 rounded-full">
                     HOT
@@ -477,7 +447,7 @@ export const Header: React.FC = () => {
               {/* Categories Section */}
               <div className="pt-2 border-t border-gray-100">
                 <span className="text-[11px] font-black text-gray-400 uppercase tracking-wider block mb-2 px-1">
-                  {language === 'bn' ? 'জনপ্রিয় ক্যাটাগরি' : 'Categories'}
+                  জনপ্রিয় ক্যাটাগরি
                 </span>
                 <div className="space-y-1">
                   {categories.map(cat => (
@@ -492,7 +462,7 @@ export const Header: React.FC = () => {
                     >
                       <span className="flex items-center gap-2">
                         <span>{cat.icon}</span>
-                        <span>{language === 'bn' ? cat.nameBn : cat.nameEn}</span>
+                        <span>{cat.nameBn}</span>
                       </span>
                     </button>
                   ))}
@@ -509,7 +479,7 @@ export const Header: React.FC = () => {
                   className="w-full text-left px-3 py-2.5 rounded-lg text-xs sm:text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-medium"
                 >
                   <Truck size={16} className="text-[#004d1a]" />
-                  <span>{language === 'bn' ? 'অর্ডার ট্র্যাক করুন' : 'Track Order'}</span>
+                  <span>অর্ডার ট্র্যাক করুন</span>
                 </button>
 
                 <button
@@ -520,7 +490,7 @@ export const Header: React.FC = () => {
                   className="w-full text-left px-3 py-2.5 rounded-lg text-xs sm:text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-medium"
                 >
                   <User size={16} className="text-[#004d1a]" />
-                  <span>{language === 'bn' ? 'আমার একাউন্ট' : 'My Account'}</span>
+                  <span>আমার একাউন্ট</span>
                 </button>
 
                 <button
@@ -531,7 +501,7 @@ export const Header: React.FC = () => {
                   className="w-full text-left px-3 py-2.5 rounded-lg text-xs sm:text-sm text-gray-600 hover:bg-gray-50 flex items-center gap-2 font-medium"
                 >
                   <LayoutDashboard size={16} className="text-gray-400" />
-                  <span>{language === 'bn' ? 'অ্যাডমিন প্যানেল' : 'Admin Panel'}</span>
+                  <span>অ্যাডমিন প্যানেল</span>
                 </button>
               </div>
             </div>
