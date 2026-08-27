@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useStore } from '../../context/StoreContext';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -10,12 +10,12 @@ import {
   Menu,
   X,
   Truck,
-  ShieldCheck,
   ChevronDown,
-  Sparkles,
   LayoutDashboard,
-  LogOut,
-  RotateCcw,
+  Sparkles,
+  Flame,
+  Layers,
+  ArrowRight,
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { PureGhorLogo } from './PureGhorLogo';
@@ -39,111 +39,110 @@ export const Header: React.FC = () => {
     refreshProducts,
   } = useStore();
 
-  const { isAdminLoggedIn, adminUser, adminLogout, customerUser, isCustomerLoggedIn } = useAuth();
+  const { isAdminLoggedIn, adminUser, customerUser, isCustomerLoggedIn } = useAuth();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [selectedSearchCat, setSelectedSearchCat] = useState<string>('all');
-  const [showAdminMenu, setShowAdminMenu] = useState(false);
-  const [isResetting, setIsResetting] = useState(false);
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setCategoryDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedSearchCat !== 'all') {
-      setSelectedCategory(selectedSearchCat);
-    }
     setCurrentView('catalog');
     setMobileMenuOpen(false);
   };
 
-  const handleResetData = async () => {
-    if (confirm('আপনি কি ডেমো ডাটা রিসেট করতে চান? (Are you sure you want to reset demo data?)')) {
-      try {
-        setIsResetting(true);
-        await api.resetDatabase();
-        await refreshProducts();
-        addToast(language === 'bn' ? 'ডাটাবেজ সফলভাবে রিসেট হয়েছে!' : 'Database successfully reset to seed data!', 'success');
-      } catch (e) {
-        addToast('Reset failed', 'error');
-      } finally {
-        setIsResetting(false);
-      }
-    }
+  const handleCategorySelect = (categoryId: string | null) => {
+    setSelectedCategory(categoryId);
+    setCurrentView('catalog');
+    setCategoryDropdownOpen(false);
+    setMobileMenuOpen(false);
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white shadow-sm border-b border-gray-100">
-      {/* Top Announcement Bar */}
-      {storeSettings.announcementActive && (
-        <div className="bg-[#0b4d2b] text-white text-xs py-1.5 px-4">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-1">
-            <div className="flex items-center gap-2 overflow-hidden text-center sm:text-left">
-              <span className="bg-[#cc3366] text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded text-white shrink-0">
-                {language === 'bn' ? 'অফার' : 'OFFER'}
-              </span>
-              <p className="truncate text-[11px] sm:text-xs">
-                {language === 'bn' ? storeSettings.announcementBn : storeSettings.announcementEn}
-              </p>
-            </div>
+    <header className="sticky top-0 z-40 bg-white shadow-xs border-b border-gray-100 font-sans">
+      {/* Top Announcement & Quick Contact Bar (Clean & Streamlined) */}
+      <div className="bg-[#003612] text-white text-xs py-1.5 px-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+          {/* Announcement or Tagline */}
+          <div className="flex items-center gap-2 overflow-hidden text-left">
+            <span className="bg-[#52b202] text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0">
+              {language === 'bn' ? '১০০% বিশুদ্ধ' : '100% PURE'}
+            </span>
+            <p className="truncate text-[11px] sm:text-xs text-white/90 font-medium">
+              {language === 'bn' ? storeSettings.announcementBn : storeSettings.announcementEn}
+            </p>
+          </div>
 
-            <div className="flex items-center gap-3 text-[11px] sm:text-xs text-white/90 shrink-0">
-              <button
-                onClick={() => setCurrentView('track-order')}
-                className="hover:text-amber-300 transition-colors flex items-center gap-1 cursor-pointer"
-              >
-                <Truck size={13} />
-                <span>{language === 'bn' ? 'অর্ডার ট্র্যাক' : 'Track Order'}</span>
-              </button>
+          {/* Quick Right Links */}
+          <div className="flex items-center gap-3 text-[11px] sm:text-xs text-white/90 shrink-0">
+            <button
+              onClick={() => setCurrentView('track-order')}
+              className="hover:text-[#52b202] transition-colors flex items-center gap-1 cursor-pointer font-medium"
+            >
+              <Truck size={13} className="text-[#52b202]" />
+              <span>{language === 'bn' ? 'অর্ডার ট্র্যাক' : 'Track Order'}</span>
+            </button>
 
-              <span className="text-white/40">|</span>
+            <span className="text-white/30 hidden sm:inline">|</span>
 
-              {/* Language Switcher */}
-              <button
-                onClick={() => setLanguage(language === 'bn' ? 'en' : 'bn')}
-                className="hover:text-amber-300 font-semibold transition-colors px-1 cursor-pointer"
-              >
-                {language === 'bn' ? 'English' : 'বাংলা'}
-              </button>
+            {/* Language Switcher */}
+            <button
+              onClick={() => setLanguage(language === 'bn' ? 'en' : 'bn')}
+              className="hover:text-emerald-300 font-bold transition-colors px-1 cursor-pointer"
+            >
+              {language === 'bn' ? 'EN' : 'বাং'}
+            </button>
 
-              <span className="text-white/40">|</span>
+            <span className="text-white/30 hidden sm:inline">|</span>
 
-              {/* Quick Admin Access */}
-              <button
-                onClick={() => setCurrentView(currentView === 'admin' ? 'home' : 'admin')}
-                className={`flex items-center gap-1 font-semibold transition-colors px-1.5 py-0.5 rounded cursor-pointer ${
-                  currentView === 'admin'
-                    ? 'bg-amber-400 text-gray-900'
-                    : 'bg-white/15 hover:bg-white/25 text-white'
-                }`}
-              >
-                <LayoutDashboard size={12} />
-                <span>{currentView === 'admin' ? 'Store' : 'Admin'}</span>
-              </button>
-            </div>
+            {/* Admin Quick Switch */}
+            <button
+              onClick={() => setCurrentView(currentView === 'admin' ? 'home' : 'admin')}
+              className={`flex items-center gap-1 font-semibold transition-colors px-2 py-0.5 rounded cursor-pointer ${
+                currentView === 'admin'
+                  ? 'bg-amber-400 text-gray-900 font-bold'
+                  : 'bg-white/10 hover:bg-white/20 text-white/80'
+              }`}
+            >
+              <LayoutDashboard size={11} />
+              <span>{currentView === 'admin' ? 'Store' : 'Admin'}</span>
+            </button>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Main Header */}
-      <div className="max-w-7xl mx-auto px-4 py-3 sm:py-3.5">
+      {/* Main Header Bar */}
+      <div className="max-w-7xl mx-auto px-4 py-2.5 sm:py-3">
         <div className="flex items-center justify-between gap-3 md:gap-6">
-          {/* Mobile Menu Trigger & Brand Logo */}
-          <div className="flex items-center gap-2.5">
+          {/* Mobile Menu Toggle & Brand Logo */}
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-1.5 text-gray-700 hover:text-[#004d1a] rounded-md border border-gray-200"
-              aria-label="Toggle Navigation"
+              className="lg:hidden p-2 text-gray-700 hover:text-[#004d1a] rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+              aria-label="মেনু খুলুন"
             >
               {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
 
-            {/* PureGhor Logo */}
+            {/* Logo */}
             <div
               onClick={() => {
                 setSelectedCategory(null);
                 setSearchQuery('');
                 setCurrentView('home');
               }}
-              className="flex items-center cursor-pointer group py-1"
+              className="flex items-center cursor-pointer group py-0.5"
             >
               <PureGhorLogo
                 size="md"
@@ -152,193 +151,257 @@ export const Header: React.FC = () => {
             </div>
           </div>
 
-          {/* Search Box - Center Desktop */}
+          {/* Search Box - Desktop Center */}
           <form
             onSubmit={handleSearch}
-            className="hidden md:flex flex-1 max-w-2xl items-center border-2 border-[#004d1a] rounded-md overflow-hidden bg-white shadow-sm"
+            className="hidden md:flex flex-1 max-w-xl items-center border-2 border-[#004d1a] focus-within:border-[#52b202] rounded-xl overflow-hidden bg-white shadow-xs transition-all"
           >
-            {/* Category Dropdown inside Search */}
-            <div className="relative border-r border-gray-200 bg-gray-50 text-gray-700 text-xs sm:text-sm font-medium">
-              <select
-                value={selectedSearchCat}
-                onChange={e => setSelectedSearchCat(e.target.value)}
-                className="appearance-none bg-transparent pl-3 pr-7 py-2 text-xs font-semibold focus:outline-none cursor-pointer"
-              >
-                <option value="all">{language === 'bn' ? 'সব দেখুন' : 'All Categories'}</option>
-                {categories.map(cat => (
-                  <option key={cat.id} value={cat.id}>
-                    {language === 'bn' ? cat.nameBn : cat.nameEn}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-            </div>
-
             <input
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              placeholder={language === 'bn' ? 'প্রোডাক্ট খুঁজুন (মধু, ঘি, তেল, বাদাম...)' : 'Search products (Honey, Ghee, Oil...)'}
-              className="flex-1 px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none"
+              placeholder={
+                language === 'bn'
+                  ? 'পণ্য খুঁজুন (যেমন: সুন্দরবনের মধু, গাওয়া ঘি, সরিষার তেল...)'
+                  : 'Search products (e.g., Sundarban Honey, Pure Ghee...)'
+              }
+              className="flex-1 px-4 py-2 text-xs sm:text-sm text-gray-800 placeholder-gray-400 focus:outline-none"
             />
-
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="p-1 text-gray-400 hover:text-gray-600 mr-1"
+              >
+                <X size={15} />
+              </button>
+            )}
             <button
               type="submit"
-              className="bg-[#004d1a] hover:bg-[#01542e] text-white px-5 py-2 text-sm font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="bg-[#004d1a] hover:bg-[#003612] text-white px-5 py-2.5 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <Search size={16} />
               <span>{language === 'bn' ? 'খুঁজুন' : 'Search'}</span>
             </button>
           </form>
 
-          {/* Right Action Icons */}
-          <div className="flex items-center gap-2 sm:gap-4">
-            {/* Wishlist Icon */}
+          {/* Right Action Controls */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Wishlist */}
             <button
               onClick={() => setCurrentView('wishlist')}
-              className="relative p-2 text-gray-700 hover:text-[#004d1a] transition-colors rounded-full hover:bg-gray-100 cursor-pointer hidden sm:flex items-center justify-center"
-              title={language === 'bn' ? 'উইশলিস্ট' : 'Wishlist'}
+              className="relative p-2 text-gray-700 hover:text-[#004d1a] transition-colors rounded-full hover:bg-emerald-50 cursor-pointer hidden sm:flex items-center justify-center"
+              title={language === 'bn' ? 'পছন্দের তালিকা' : 'Wishlist'}
+              aria-label="Wishlist"
             >
-              <Heart size={22} className={wishlist.length > 0 ? 'fill-[#cc3366] text-[#cc3366]' : ''} />
+              <Heart size={22} className={wishlist.length > 0 ? 'fill-rose-500 text-rose-500' : ''} />
               {wishlist.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#cc3366] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 bg-rose-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
                   {wishlist.length}
                 </span>
               )}
             </button>
 
-            {/* Cart Icon */}
+            {/* Shopping Cart Button with Count */}
             <button
               onClick={() => setIsCartDrawerOpen(true)}
-              className="relative flex items-center gap-2 p-2 text-gray-700 hover:text-[#004d1a] transition-colors rounded-full hover:bg-gray-100 cursor-pointer"
+              className="relative flex items-center gap-1.5 p-2 sm:px-3 sm:py-2 text-gray-800 hover:text-[#004d1a] transition-all rounded-xl hover:bg-emerald-50 cursor-pointer border border-transparent hover:border-emerald-200"
               title={language === 'bn' ? 'শপিং কার্ট' : 'Shopping Cart'}
+              aria-label="Cart"
             >
               <div className="relative">
-                <ShoppingCart size={24} className="text-gray-800" />
-                <span className="absolute -top-1.5 -right-2 bg-[#004d1a] text-white text-[11px] font-bold min-w-5 h-5 px-1 rounded-full flex items-center justify-center shadow">
-                  {cartCount}
-                </span>
+                <ShoppingCart size={22} className="text-[#004d1a]" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-[#52b202] text-white text-[11px] font-black min-w-4 h-4 px-1 rounded-full flex items-center justify-center shadow-xs animate-scale">
+                    {cartCount}
+                  </span>
+                )}
               </div>
+              <span className="text-xs font-bold text-gray-700 hidden md:inline">
+                {language === 'bn' ? 'কার্ট' : 'Cart'}
+              </span>
             </button>
 
-            {/* Account / Login */}
+            {/* Account Profile */}
             <button
               onClick={() => setCurrentView('customer-account')}
-              className="p-2 text-gray-700 hover:text-[#004d1a] transition-colors rounded-full hover:bg-gray-100 cursor-pointer flex items-center gap-1.5"
-              title={language === 'bn' ? 'আমার একাউন্ট' : 'My Account'}
+              className="p-2 text-gray-700 hover:text-[#004d1a] transition-colors rounded-full hover:bg-emerald-50 cursor-pointer flex items-center gap-1"
+              title={language === 'bn' ? 'আমার অ্যাকাউন্ট' : 'My Account'}
+              aria-label="Account"
             >
-              <User size={22} />
-              {isCustomerLoggedIn && (
-                <span className="text-xs font-semibold text-gray-700 hidden lg:inline max-w-[80px] truncate">
-                  {customerUser?.name?.split(' ')[0]}
-                </span>
-              )}
+              <User size={21} />
             </button>
 
-            {/* Call to Order Button (as seen in screenshot) */}
+            {/* Hotline Call Button */}
             <a
               href={`tel:${storeSettings.phonePrimary.replace(/[^0-9+]/g, '')}`}
-              className="bg-[#004d1a] hover:bg-[#0b4d2b] text-white px-3 sm:px-4 py-2 rounded-md font-semibold text-xs sm:text-sm flex items-center gap-1.5 shadow-sm hover:shadow transition-all whitespace-nowrap cursor-pointer"
+              className="bg-[#004d1a] hover:bg-[#52b202] text-white px-3 sm:px-4 py-2 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-1.5 shadow-xs hover:shadow transition-all whitespace-nowrap cursor-pointer"
             >
-              <PhoneCall size={16} className="text-amber-300 animate-bounce" />
-              <span className="hidden xs:inline">{language === 'bn' ? 'কল করুন' : 'Call to Order'}</span>
+              <PhoneCall size={15} className="text-amber-300 animate-pulse" />
+              <span className="hidden sm:inline">{storeSettings.phonePrimary}</span>
+              <span className="sm:hidden">{language === 'bn' ? 'কল' : 'Call'}</span>
             </a>
           </div>
         </div>
 
         {/* Mobile Search Bar */}
-        <form onSubmit={handleSearch} className="mt-2.5 flex md:hidden items-center border border-[#004d1a] rounded-md overflow-hidden">
+        <form onSubmit={handleSearch} className="mt-2.5 flex md:hidden items-center border border-[#004d1a] rounded-lg overflow-hidden bg-white shadow-xs">
           <input
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            placeholder={language === 'bn' ? 'পণ্য খুঁজুন...' : 'Search products...'}
-            className="flex-1 px-3 py-1.5 text-xs text-gray-800 focus:outline-none"
+            placeholder={language === 'bn' ? 'পণ্য খুঁজুন (মধু, ঘি, তেল...)' : 'Search products...'}
+            className="flex-1 px-3 py-2 text-xs text-gray-800 focus:outline-none"
           />
           <button
             type="submit"
-            className="bg-[#004d1a] text-white px-3.5 py-1.5 text-xs font-medium flex items-center justify-center"
+            className="bg-[#004d1a] text-white px-4 py-2 text-xs font-bold flex items-center justify-center"
           >
             <Search size={14} />
           </button>
         </form>
       </div>
 
-      {/* Main Categories Navigation Bar (Matching Screenshot Green Header Bar) */}
-      <nav className="bg-[#004d1a] text-white border-t border-[#0b4d2b] hidden lg:block overflow-x-auto">
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between text-xs xl:text-sm font-medium tracking-wide">
+      {/* Clean & Streamlined Desktop Navigation Bar */}
+      <nav className="bg-[#004d1a] text-white hidden lg:block border-t border-[#003612]/30 shadow-xs">
+        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between text-xs xl:text-sm font-semibold">
+          {/* Main Primary Links */}
           <div className="flex items-center space-x-1 py-1">
+            {/* 1. All Categories Dropdown Menu */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+                className="bg-[#52b202] hover:bg-[#449900] text-white px-4 py-2 rounded-lg flex items-center gap-2 font-bold transition-colors cursor-pointer shadow-xs mr-2"
+              >
+                <Layers size={16} />
+                <span>{language === 'bn' ? 'সকল ক্যাটাগরি' : 'All Categories'}</span>
+                <ChevronDown size={14} className={`transition-transform duration-200 ${categoryDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Clean Category Mega Dropdown */}
+              {categoryDropdownOpen && (
+                <div className="absolute top-full left-0 mt-1.5 w-72 bg-white text-gray-800 rounded-xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="px-3 py-1.5 border-b border-gray-100 text-[11px] font-extrabold uppercase tracking-wider text-gray-400">
+                    {language === 'bn' ? 'প্রধান ক্যাটাগরিসমূহ' : 'Main Categories'}
+                  </div>
+                  <div className="py-1">
+                    <button
+                      onClick={() => handleCategorySelect(null)}
+                      className="w-full px-3.5 py-2 text-left text-xs sm:text-sm font-semibold hover:bg-emerald-50 hover:text-[#004d1a] flex items-center justify-between cursor-pointer"
+                    >
+                      <span>{language === 'bn' ? 'সকল পণ্য দেখুন' : 'View All Products'}</span>
+                      <ArrowRight size={14} className="text-gray-400" />
+                    </button>
+                    {categories.map(cat => (
+                      <button
+                        key={cat.id}
+                        onClick={() => handleCategorySelect(cat.id)}
+                        className={`w-full px-3.5 py-2 text-left text-xs sm:text-sm font-medium hover:bg-emerald-50 hover:text-[#004d1a] flex items-center justify-between cursor-pointer ${
+                          selectedCategory === cat.id ? 'bg-emerald-50 text-[#004d1a] font-bold' : ''
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span className="text-base">{cat.icon}</span>
+                          <span>{language === 'bn' ? cat.nameBn : cat.nameEn}</span>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 2. Homepage */}
             <button
               onClick={() => {
                 setSelectedCategory(null);
                 setSearchQuery('');
                 setCurrentView('home');
               }}
-              className={`px-3 py-2 rounded transition-colors whitespace-nowrap cursor-pointer ${
+              className={`px-3 py-2 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 currentView === 'home' && !selectedCategory
-                  ? 'bg-[#0b4d2b] text-amber-300 font-bold'
-                  : 'hover:bg-[#01542e] text-white'
+                  ? 'bg-white/20 text-white font-bold'
+                  : 'hover:bg-white/10 text-white/90'
               }`}
             >
-              {language === 'bn' ? 'হোমপেজ' : 'Homepage'}
+              {language === 'bn' ? 'হোম' : 'Home'}
             </button>
 
-            <button
-              onClick={() => {
-                setSelectedCategory(null);
-                setCurrentView('offers');
-              }}
-              className={`px-3 py-2 rounded transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1 ${
-                currentView === 'offers'
-                  ? 'bg-[#0b4d2b] text-amber-300 font-bold'
-                  : 'hover:bg-[#01542e] text-white'
-              }`}
-            >
-              <span className="w-2 h-2 rounded-full bg-[#cc3366] animate-pulse"></span>
-              {language === 'bn' ? 'অফার ও ছাড়' : 'Offers & Deals'}
-            </button>
-
+            {/* 3. All Products */}
             <button
               onClick={() => {
                 setSelectedCategory(null);
                 setCurrentView('catalog');
               }}
-              className={`px-3 py-2 rounded transition-colors whitespace-nowrap cursor-pointer ${
+              className={`px-3 py-2 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 currentView === 'catalog' && !selectedCategory
-                  ? 'bg-[#0b4d2b] text-amber-300 font-bold'
-                  : 'hover:bg-[#01542e] text-white'
+                  ? 'bg-white/20 text-white font-bold'
+                  : 'hover:bg-white/10 text-white/90'
               }`}
             >
               {language === 'bn' ? 'সকল পণ্য' : 'All Products'}
             </button>
 
-            {/* Category tabs matching screenshot */}
-            {categories.slice(0, 9).map(cat => (
-              <button
-                key={cat.id}
-                onClick={() => {
-                  setSelectedCategory(cat.id);
-                  setCurrentView('catalog');
-                }}
-                className={`px-2.5 py-2 rounded transition-colors whitespace-nowrap cursor-pointer ${
-                  selectedCategory === cat.id
-                    ? 'bg-[#0b4d2b] text-amber-300 font-bold'
-                    : 'hover:bg-[#01542e] text-white/90'
-                }`}
-              >
-                {language === 'bn' ? cat.nameBn : cat.nameEn}
-              </button>
-            ))}
+            {/* 4. Honey & Ghee (Top Popular Category) */}
+            <button
+              onClick={() => {
+                const honeyCat = categories.find(c => c.slug.includes('honey') || c.id === 'cat-1');
+                handleCategorySelect(honeyCat?.id || 'cat-1');
+              }}
+              className="px-3 py-2 rounded-lg hover:bg-white/10 text-white/90 transition-colors whitespace-nowrap cursor-pointer"
+            >
+              {language === 'bn' ? 'মধু ও ঘি' : 'Honey & Ghee'}
+            </button>
+
+            {/* 5. Mustard Oil */}
+            <button
+              onClick={() => {
+                const oilCat = categories.find(c => c.slug.includes('oil') || c.id === 'cat-2');
+                handleCategorySelect(oilCat?.id || 'cat-2');
+              }}
+              className="px-3 py-2 rounded-lg hover:bg-white/10 text-white/90 transition-colors whitespace-nowrap cursor-pointer"
+            >
+              {language === 'bn' ? 'খাঁটি তেল' : 'Pure Oil'}
+            </button>
+
+            {/* 6. Dry Fruits & Nuts */}
+            <button
+              onClick={() => {
+                const nutCat = categories.find(c => c.slug.includes('dry') || c.slug.includes('nut') || c.id === 'cat-5');
+                handleCategorySelect(nutCat?.id || 'cat-5');
+              }}
+              className="px-3 py-2 rounded-lg hover:bg-white/10 text-white/90 transition-colors whitespace-nowrap cursor-pointer"
+            >
+              {language === 'bn' ? 'ড্রাই ফ্রুটস ও বাদাম' : 'Dry Fruits & Nuts'}
+            </button>
+
+            {/* 7. Special Deals */}
+            <button
+              onClick={() => {
+                setSelectedCategory(null);
+                setCurrentView('offers');
+              }}
+              className={`px-3 py-2 rounded-lg transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                currentView === 'offers'
+                  ? 'bg-white/20 text-amber-300 font-bold'
+                  : 'hover:bg-white/10 text-amber-300 font-bold'
+              }`}
+            >
+              <Flame size={14} className="text-amber-400 animate-bounce" />
+              <span>{language === 'bn' ? 'হট অফার' : 'Hot Offers'}</span>
+            </button>
           </div>
 
-          {/* Quick Hotline on Right */}
-          <div className="flex items-center gap-2 text-white/90 shrink-0 text-xs py-1">
-            <span className="font-semibold text-amber-300">হটলাইন: {storeSettings.phonePrimary}</span>
+          {/* Clean Right Notice: Free Shipping & Delivery Info */}
+          <div className="flex items-center gap-3 text-white/90 text-xs py-1">
+            <span className="text-[#a3d977] font-semibold flex items-center gap-1">
+              <Truck size={14} /> {language === 'bn' ? 'সারা বাংলাদেশে ক্যাশ অন ডেলিভারি' : 'Cash on Delivery Nationwide'}
+            </span>
           </div>
         </div>
       </nav>
 
-      {/* Mobile Drawer Menu */}
+      {/* Clean Mobile Menu Drawer */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden flex">
           {/* Backdrop */}
@@ -347,115 +410,139 @@ export const Header: React.FC = () => {
             className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
           />
 
-          {/* Drawer content */}
+          {/* Drawer Panel */}
           <div className="relative w-4/5 max-w-xs bg-white h-full shadow-2xl flex flex-col z-10 overflow-y-auto">
-            {/* Drawer Header */}
+            {/* Header */}
             <div className="p-4 bg-[#004d1a] text-white flex items-center justify-between">
               <PureGhorLogo lightMode size="sm" taglineText={language === 'bn' ? '১০০% বিশুদ্ধ অর্গানিক' : '100% Pure Organic'} />
-              <button onClick={() => setMobileMenuOpen(false)} className="p-1 hover:bg-white/10 rounded">
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-1.5 hover:bg-white/10 rounded-lg text-white"
+                aria-label="Close menu"
+              >
                 <X size={20} />
               </button>
             </div>
 
-            {/* Nav list */}
-            <div className="p-3 divide-y divide-gray-100 flex-1">
-              <div className="py-2 space-y-1">
+            {/* Nav Body */}
+            <div className="p-4 space-y-4 flex-1">
+              {/* Primary Shortcuts */}
+              <div className="space-y-1">
                 <button
                   onClick={() => {
                     setSelectedCategory(null);
                     setCurrentView('home');
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full text-left px-3 py-2 rounded font-semibold text-gray-800 hover:bg-gray-100"
+                  className={`w-full text-left px-3.5 py-2.5 rounded-xl font-bold text-sm transition-colors flex items-center justify-between ${
+                    currentView === 'home' ? 'bg-emerald-50 text-[#004d1a]' : 'text-gray-800 hover:bg-gray-50'
+                  }`}
                 >
-                  {language === 'bn' ? 'হোমপেজ' : 'Homepage'}
+                  <span>{language === 'bn' ? 'হোমপেজ' : 'Homepage'}</span>
                 </button>
-                <button
-                  onClick={() => {
-                    setSelectedCategory(null);
-                    setCurrentView('offers');
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-2 rounded font-semibold text-[#cc3366] hover:bg-pink-50 flex items-center justify-between"
-                >
-                  <span>{language === 'bn' ? 'বিশেষ অফার ও ছাড়' : 'Special Offers'}</span>
-                  <span className="text-[10px] bg-[#cc3366] text-white px-1.5 py-0.5 rounded font-bold">HOT</span>
-                </button>
+
                 <button
                   onClick={() => {
                     setSelectedCategory(null);
                     setCurrentView('catalog');
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full text-left px-3 py-2 rounded font-semibold text-gray-800 hover:bg-gray-100"
+                  className={`w-full text-left px-3.5 py-2.5 rounded-xl font-bold text-sm transition-colors flex items-center justify-between ${
+                    currentView === 'catalog' && !selectedCategory
+                      ? 'bg-emerald-50 text-[#004d1a]'
+                      : 'text-gray-800 hover:bg-gray-50'
+                  }`}
                 >
-                  {language === 'bn' ? 'সকল পণ্য' : 'All Products'}
+                  <span>{language === 'bn' ? 'সকল পণ্য' : 'All Products'}</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setSelectedCategory(null);
+                    setCurrentView('offers');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full text-left px-3.5 py-2.5 rounded-xl font-bold text-sm text-amber-700 bg-amber-50 hover:bg-amber-100 transition-colors flex items-center justify-between"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <Flame size={16} className="text-amber-600" />
+                    <span>{language === 'bn' ? 'হট অফার ও ডিসকাউন্ট' : 'Hot Offers'}</span>
+                  </span>
+                  <span className="text-[10px] bg-rose-600 text-white font-extrabold px-1.5 py-0.5 rounded-full">
+                    HOT
+                  </span>
                 </button>
               </div>
 
-              <div className="py-2">
-                <span className="px-3 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                  {language === 'bn' ? 'ক্যাটাগরি সমূহ' : 'Categories'}
+              {/* Categories Section */}
+              <div className="pt-2 border-t border-gray-100">
+                <span className="text-[11px] font-black text-gray-400 uppercase tracking-wider block mb-2 px-1">
+                  {language === 'bn' ? 'জনপ্রিয় ক্যাটাগরি' : 'Categories'}
                 </span>
-                <div className="mt-1 space-y-0.5">
+                <div className="space-y-1">
                   {categories.map(cat => (
                     <button
                       key={cat.id}
-                      onClick={() => {
-                        setSelectedCategory(cat.id);
-                        setCurrentView('catalog');
-                        setMobileMenuOpen(false);
-                      }}
-                      className="w-full text-left px-3 py-2 rounded text-sm text-gray-700 hover:bg-[#004d1a]/10 hover:text-[#004d1a] flex items-center gap-2 font-medium"
+                      onClick={() => handleCategorySelect(cat.id)}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center justify-between ${
+                        selectedCategory === cat.id
+                          ? 'bg-emerald-50 text-[#004d1a] font-bold'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
                     >
-                      <span>{cat.icon}</span>
-                      <span>{language === 'bn' ? cat.nameBn : cat.nameEn}</span>
+                      <span className="flex items-center gap-2">
+                        <span>{cat.icon}</span>
+                        <span>{language === 'bn' ? cat.nameBn : cat.nameEn}</span>
+                      </span>
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div className="py-2 space-y-1">
+              {/* Account & Tracking */}
+              <div className="pt-2 border-t border-gray-100 space-y-1">
                 <button
                   onClick={() => {
                     setCurrentView('track-order');
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full text-left px-3 py-2 rounded text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                  className="w-full text-left px-3 py-2.5 rounded-lg text-xs sm:text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-medium"
                 >
-                  <Truck size={16} />
+                  <Truck size={16} className="text-[#004d1a]" />
                   <span>{language === 'bn' ? 'অর্ডার ট্র্যাক করুন' : 'Track Order'}</span>
                 </button>
+
                 <button
                   onClick={() => {
                     setCurrentView('customer-account');
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full text-left px-3 py-2 rounded text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                  className="w-full text-left px-3 py-2.5 rounded-lg text-xs sm:text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 font-medium"
                 >
-                  <User size={16} />
+                  <User size={16} className="text-[#004d1a]" />
                   <span>{language === 'bn' ? 'আমার একাউন্ট' : 'My Account'}</span>
                 </button>
+
                 <button
                   onClick={() => {
                     setCurrentView('admin');
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full text-left px-3 py-2 rounded text-sm text-amber-700 bg-amber-50 hover:bg-amber-100 flex items-center gap-2 font-semibold"
+                  className="w-full text-left px-3 py-2.5 rounded-lg text-xs sm:text-sm text-gray-600 hover:bg-gray-50 flex items-center gap-2 font-medium"
                 >
-                  <LayoutDashboard size={16} />
+                  <LayoutDashboard size={16} className="text-gray-400" />
                   <span>{language === 'bn' ? 'অ্যাডমিন প্যানেল' : 'Admin Panel'}</span>
                 </button>
               </div>
             </div>
 
-            {/* Call support footer */}
-            <div className="p-4 bg-gray-50 border-t border-gray-200">
+            {/* Mobile Footer Call Button */}
+            <div className="p-4 bg-gray-50 border-t border-gray-100">
               <a
                 href={`tel:${storeSettings.phonePrimary.replace(/[^0-9+]/g, '')}`}
-                className="w-full bg-[#004d1a] text-white py-2.5 rounded text-center text-sm font-semibold flex items-center justify-center gap-2"
+                className="w-full bg-[#004d1a] hover:bg-[#52b202] text-white py-3 rounded-xl text-center text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-xs transition-colors"
               >
-                <PhoneCall size={16} />
+                <PhoneCall size={16} className="text-amber-300" />
                 <span>{storeSettings.phonePrimary}</span>
               </a>
             </div>

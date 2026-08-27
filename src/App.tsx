@@ -59,6 +59,8 @@ export function App() {
     setCurrentView,
     products,
     categories,
+    selectedCategory,
+    setSelectedCategory,
     selectedCategorySlug,
     setSelectedCategorySlug,
     searchQuery,
@@ -308,7 +310,7 @@ export function App() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-5">
                 {products.slice(0, 8).map(product => (
                   <ProductCard key={product.id} product={product} />
                 ))}
@@ -322,21 +324,22 @@ export function App() {
               return (
                 <section key={cat.id} className="max-w-7xl mx-auto px-4 space-y-4">
                   <div className="flex items-center justify-between border-b border-gray-200 pb-2">
-                    <h3 className="text-lg sm:text-xl font-bold text-gray-900">
-                      {language === 'bn' ? cat.nameBn : cat.nameEn}
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
+                      <span>{cat.icon}</span>
+                      <span>{language === 'bn' ? cat.nameBn : cat.nameEn}</span>
                     </h3>
                     <button
                       onClick={() => {
-                        setSelectedCategorySlug(cat.slug);
+                        setSelectedCategory(cat.id);
                         setCurrentView('catalog');
                       }}
-                      className="text-xs font-semibold text-[#004d1a] hover:underline cursor-pointer"
+                      className="text-xs sm:text-sm font-bold text-[#004d1a] hover:text-[#52b202] flex items-center gap-1 cursor-pointer transition-colors"
                     >
-                      {language === 'bn' ? 'এই ক্যাটাগরির সব পণ্য →' : 'Explore Category →'}
+                      <span>{language === 'bn' ? 'সব দেখুন →' : 'View All →'}</span>
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-5">
                     {catProducts.slice(0, 4).map(prod => (
                       <ProductCard key={prod.id} product={prod} />
                     ))}

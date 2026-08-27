@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useStore } from '../../context/StoreContext';
 import { ProductCard } from './ProductCard';
-import { Filter, SlidersHorizontal, ArrowUpDown, Sparkles, X } from 'lucide-react';
+import { Filter, SlidersHorizontal, ArrowUpDown, Sparkles, X, LayoutGrid } from 'lucide-react';
 
 interface ProductGridProps {
   title?: string;
@@ -29,7 +29,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
 
   const [sortBy, setSortBy] = useState<string>('default');
   const [minPrice, setMinPrice] = useState<number>(0);
-  const [maxPrice, setMaxPrice] = useState<number>(3000);
+  const [maxPrice, setMaxPrice] = useState<number>(5000);
   const [showFilters, setShowFilters] = useState<boolean>(false);
 
   // Filter & sort logic
@@ -88,11 +88,11 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   const activeCategoryObj = categories.find(c => c.id === selectedCategory);
 
   return (
-    <section className="max-w-7xl mx-auto px-4 py-8">
-      {/* Section Header with Sort and Filter toggles */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <section className="max-w-7xl mx-auto px-4 py-6 sm:py-8" id="product-catalog-section">
+      {/* Section Header with Clean Filter & Sort Controls */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 tracking-tight flex items-center gap-2">
             <span>
               {title ||
                 (activeCategoryObj
@@ -104,10 +104,10 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                     ? 'সকল স্পেশাল অফার'
                     : 'Special Discount Deals'
                   : language === 'bn'
-                  ? 'আমাদের পণ্য'
-                  : 'Our Products')}
+                  ? 'আমাদের সকল অর্গানিক পণ্য'
+                  : 'Our Organic Products')}
             </span>
-            <span className="text-xs font-semibold bg-gray-100 text-gray-700 px-2.5 py-0.5 rounded-full">
+            <span className="text-xs font-bold bg-emerald-100 text-[#004d1a] px-2.5 py-0.5 rounded-full">
               {filteredProducts.length} {language === 'bn' ? 'টি পণ্য' : 'items'}
             </span>
           </h2>
@@ -116,7 +116,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
               <span>{language === 'bn' ? `খোঁজা হচ্ছে: "${searchQuery}"` : `Searching for: "${searchQuery}"`}</span>
               <button
                 onClick={() => setSearchQuery('')}
-                className="text-rose-500 hover:underline inline-flex items-center text-xs ml-1"
+                className="text-rose-500 hover:underline inline-flex items-center text-xs ml-1 cursor-pointer font-semibold"
               >
                 <X size={12} /> {language === 'bn' ? 'মুছুন' : 'Clear'}
               </button>
@@ -124,44 +124,70 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
           )}
         </div>
 
-        {/* Action Controls */}
-        <div className="flex items-center gap-2.5 flex-wrap">
+        {/* Action Controls: Filter & Sort */}
+        <div className="flex items-center gap-2 flex-wrap">
           {/* Mobile Filter Toggle */}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="sm:hidden flex items-center gap-1 px-3 py-1.5 border border-gray-300 rounded text-xs font-semibold text-gray-700 bg-white"
+            className="sm:hidden flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-bold text-gray-700 bg-white shadow-xs"
           >
-            <SlidersHorizontal size={14} />
-            <span>{language === 'bn' ? 'ফিল্টার' : 'Filters'}</span>
+            <SlidersHorizontal size={14} className="text-[#004d1a]" />
+            <span>{language === 'bn' ? 'প্রাইস ফিল্টার' : 'Price Filter'}</span>
           </button>
 
           {/* Sort Dropdown */}
-          <div className="flex items-center gap-1.5 border border-gray-300 rounded px-2.5 py-1.5 bg-white text-xs text-gray-700">
-            <ArrowUpDown size={14} className="text-gray-400" />
+          <div className="flex items-center gap-1.5 border border-gray-200 rounded-lg px-2.5 py-1.5 bg-white text-xs text-gray-700 shadow-xs">
+            <ArrowUpDown size={13} className="text-[#004d1a]" />
             <select
               value={sortBy}
               onChange={e => setSortBy(e.target.value)}
-              className="bg-transparent focus:outline-none cursor-pointer font-medium"
+              className="bg-transparent focus:outline-none cursor-pointer font-semibold text-gray-800"
             >
-              <option value="default">{language === 'bn' ? 'সাধারণ সাজানো' : 'Default Sorting'}</option>
+              <option value="default">{language === 'bn' ? 'ডিফল্ট সাজানো' : 'Default Sorting'}</option>
               <option value="price-asc">{language === 'bn' ? 'দাম: কম থেকে বেশি' : 'Price: Low to High'}</option>
               <option value="price-desc">{language === 'bn' ? 'দাম: বেশি থেকে কম' : 'Price: High to Low'}</option>
               <option value="rating">{language === 'bn' ? 'সর্বোচ্চ রেটিং' : 'Highest Rated'}</option>
               <option value="discount">{language === 'bn' ? 'সর্বোচ্চ ছাড়' : 'Biggest Discount'}</option>
-              <option value="newest">{language === 'bn' ? 'নতুন পণ্য' : 'Newest Arrivals'}</option>
+              <option value="newest">{language === 'bn' ? 'নতুন কালেকশন' : 'Newest Arrivals'}</option>
             </select>
           </div>
         </div>
       </div>
 
-      {/* Category Pills Bar */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none">
+      {/* Expandable Price Range Filter for Mobile / Desktop */}
+      {showFilters && (
+        <div className="mb-4 p-4 bg-emerald-50/70 border border-emerald-200 rounded-xl flex flex-wrap items-center justify-between gap-4 animate-in fade-in duration-200">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold text-gray-800">
+              {language === 'bn' ? 'সর্বোচ্চ দাম:' : 'Max Price:'} ৳{maxPrice}
+            </span>
+            <input
+              type="range"
+              min="100"
+              max="5000"
+              step="50"
+              value={maxPrice}
+              onChange={e => setMaxPrice(Number(e.target.value))}
+              className="accent-[#004d1a] cursor-pointer"
+            />
+          </div>
+          <button
+            onClick={() => setMaxPrice(5000)}
+            className="text-xs text-[#004d1a] font-bold hover:underline cursor-pointer"
+          >
+            {language === 'bn' ? 'রিসেট' : 'Reset'}
+          </button>
+        </div>
+      )}
+
+      {/* Category Pills Bar (Horizontal Scroll on Mobile) */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-5 scrollbar-none">
         <button
           onClick={() => setSelectedCategory(null)}
-          className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+          className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
             !selectedCategory
               ? 'bg-[#004d1a] text-white shadow-xs'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
           }`}
         >
           {language === 'bn' ? 'সকল ক্যাটাগরি' : 'All Categories'}
@@ -170,10 +196,10 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
           <button
             key={cat.id}
             onClick={() => setSelectedCategory(cat.id)}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer flex items-center gap-1 ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
               selectedCategory === cat.id
                 ? 'bg-[#004d1a] text-white shadow-xs'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
             }`}
           >
             <span>{cat.icon}</span>
@@ -182,13 +208,13 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
         ))}
       </div>
 
-      {/* Product Cards Grid */}
+      {/* Product Cards Grid: Mobile-Friendly 2-Cols, Tablet 3-Cols, Desktop 4-Cols */}
       {filteredProducts.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-lg border border-gray-200 p-8 space-y-3">
-          <div className="w-12 h-12 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mx-auto">
-            <Sparkles size={24} />
+        <div className="text-center py-16 bg-white rounded-2xl border border-gray-200 p-8 space-y-3 shadow-xs">
+          <div className="w-14 h-14 rounded-full bg-emerald-50 text-[#004d1a] flex items-center justify-center mx-auto">
+            <Sparkles size={26} />
           </div>
-          <h3 className="text-base font-bold text-gray-800">
+          <h3 className="text-base font-bold text-gray-900">
             {language === 'bn' ? 'কোনো পণ্য পাওয়া যায়নি' : 'No products found'}
           </h3>
           <p className="text-xs text-gray-500 max-w-sm mx-auto">
@@ -201,15 +227,15 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
               setSelectedCategory(null);
               setSearchQuery('');
               setMinPrice(0);
-              setMaxPrice(3000);
+              setMaxPrice(5000);
             }}
-            className="bg-[#004d1a] text-white px-4 py-2 rounded text-xs font-semibold mt-2 cursor-pointer"
+            className="bg-[#004d1a] hover:bg-[#52b202] text-white px-5 py-2.5 rounded-xl text-xs font-bold mt-2 cursor-pointer transition-colors shadow-xs"
           >
             {language === 'bn' ? 'সব ফিল্টার রিসেট করুন' : 'Reset All Filters'}
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-5">
           {filteredProducts.map(product => (
             <ProductCard key={product.id} product={product} />
           ))}
