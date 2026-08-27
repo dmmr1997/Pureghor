@@ -56,10 +56,13 @@ export const CategoryCarousel: React.FC = () => {
                 {/* Category Image Area */}
                 <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-md overflow-hidden bg-gray-50 flex items-center justify-center mb-2.5">
                   <img
-                    src={cat.imageUrl || 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=300&auto=format&fit=crop&q=80'}
+                    src={cat.imageUrl || cat.image || '/images/products/pureghor_blackseed_honey_1787810945841.jpg'}
                     alt={cat.nameEn}
                     className="w-full h-full object-contain p-1 transform group-hover:scale-105 transition-transform"
                     loading="lazy"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/images/products/pureghor_blackseed_honey_1787810945841.jpg';
+                    }}
                   />
                 </div>
 

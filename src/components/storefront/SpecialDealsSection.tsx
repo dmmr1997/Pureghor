@@ -62,6 +62,9 @@ export const SpecialDealsSection: React.FC = () => {
                 loading="lazy"
                 decoding="async"
                 className="w-full h-full object-contain p-1 group-hover:scale-105 transition-transform duration-300"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/images/products/pureghor_blackseed_honey_1787810945841.jpg';
+                }}
               />
               {product.discountPercentage && product.discountPercentage > 0 && (
                 <span className="absolute top-1.5 left-1.5 bg-[#cc3366] text-white text-[10px] font-black px-1.5 py-0.5 rounded-md shadow-xs">

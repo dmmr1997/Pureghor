@@ -18,6 +18,9 @@ export const HeroBanner: React.FC = () => {
             alt="PureGhor Organic Store Counter"
             className="w-full h-full object-cover object-right md:object-center"
             referrerPolicy="no-referrer"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/images/products/pureghor_hero_bg_1787810122640.jpg';
+            }}
           />
           {/* Seamless Gradient Fade to blend cleanly with Left Typography */}
           <div className="absolute inset-0 bg-gradient-to-r from-[#f7faf4] via-[#f7faf4]/95 via-35% md:via-48% to-transparent lg:to-transparent/10" />

@@ -12,6 +12,8 @@ import { FloatingSupportWidget } from './components/common/FloatingSupportWidget
 import { HeroBanner } from './components/storefront/HeroBanner';
 import { CategoryCarousel } from './components/storefront/CategoryCarousel';
 import { SpecialDealsSection } from './components/storefront/SpecialDealsSection';
+import { HomeProductShowcase } from './components/storefront/HomeProductShowcase';
+import { SocialVideoReviews } from './components/storefront/SocialVideoReviews';
 import { ProductGrid } from './components/storefront/ProductGrid';
 import { ProductCard } from './components/storefront/ProductCard';
 import { QuickOrderModal } from './components/storefront/QuickOrderModal';
@@ -278,75 +280,18 @@ export function App() {
             <HeroBanner />
 
             {/* Circular Category Slider */}
-            <div className="max-w-7xl mx-auto px-4">
+            <div className="max-w-7xl mx-auto px-4" id="pureghor-category-section">
               <CategoryCarousel />
             </div>
 
             {/* Special Deals / Flash Sale */}
             <SpecialDealsSection />
 
-            {/* Featured Best Sellers Grid */}
-            <section className="max-w-7xl mx-auto px-4 space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
-                    {language === 'bn' ? 'আমাদের জনপ্রিয় সেরা পণ্যসমূহ' : 'Best Selling Organic Products'}
-                  </h2>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    {language === 'bn'
-                      ? 'গ্রাহকদের সর্বাধিক পছন্দের শতভাগ খাঁটি খাদ্য সামগ্রী'
-                      : 'Highest rated and most loved pure natural food items'}
-                  </p>
-                </div>
+            {/* Comprehensive Interactive Product Showcase */}
+            <HomeProductShowcase />
 
-                <button
-                  onClick={() => {
-                    setSelectedCategorySlug('all');
-                    setCurrentView('catalog');
-                  }}
-                  className="text-xs sm:text-sm font-bold text-[#004d1a] hover:underline cursor-pointer"
-                >
-                  {language === 'bn' ? 'সকল পণ্য দেখুন →' : 'View All Products →'}
-                </button>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-5">
-                {products.slice(0, 8).map(product => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
-            </section>
-
-            {/* Categorized Showcase (Mustard Oil & Ghee & Honey Spotlight) */}
-            {categories.slice(0, 3).map(cat => {
-              const catProducts = products.filter(p => p.categoryId === cat.id);
-              if (catProducts.length === 0) return null;
-              return (
-                <section key={cat.id} className="max-w-7xl mx-auto px-4 space-y-4">
-                  <div className="flex items-center justify-between border-b border-gray-200 pb-2">
-                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
-                      <span>{cat.icon}</span>
-                      <span>{language === 'bn' ? cat.nameBn : cat.nameEn}</span>
-                    </h3>
-                    <button
-                      onClick={() => {
-                        setSelectedCategory(cat.id);
-                        setCurrentView('catalog');
-                      }}
-                      className="text-xs sm:text-sm font-bold text-[#004d1a] hover:text-[#52b202] flex items-center gap-1 cursor-pointer transition-colors"
-                    >
-                      <span>{language === 'bn' ? 'সব দেখুন →' : 'View All →'}</span>
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-5">
-                    {catProducts.slice(0, 4).map(prod => (
-                      <ProductCard key={prod.id} product={prod} />
-                    ))}
-                  </div>
-                </section>
-              );
-            })}
+            {/* Customer Social Media Video Reviews Section */}
+            <SocialVideoReviews />
 
             {/* Trust Badges & Guarantee Banner */}
             <section className="max-w-7xl mx-auto px-4">

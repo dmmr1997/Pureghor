@@ -91,6 +91,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             loading="lazy"
             decoding="async"
             className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xs"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/images/products/pureghor_blackseed_honey_1787810945841.jpg';
+            }}
           />
         </div>
 

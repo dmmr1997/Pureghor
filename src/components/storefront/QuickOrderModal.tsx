@@ -242,6 +242,9 @@ export const QuickOrderModal: React.FC = () => {
                   src={product.mainImage}
                   alt={product.nameEn}
                   className="w-16 h-16 object-contain rounded bg-white p-1 border border-gray-200 shrink-0"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/images/products/pureghor_blackseed_honey_1787810945841.jpg';
+                  }}
                 />
                 <div className="flex-1 min-w-0">
                   <h4 className="font-bold text-xs sm:text-sm text-gray-900 truncate">

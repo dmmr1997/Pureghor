@@ -144,6 +144,9 @@ export const ProductDetailView: React.FC = () => {
               src={selectedImage}
               alt={product.nameEn}
               className="max-h-full max-w-full object-contain transform group-hover:scale-105 transition-transform duration-300"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/images/products/pureghor_blackseed_honey_1787810945841.jpg';
+              }}
             />
             {product.discountPercentage && product.discountPercentage > 0 && (
               <span className="absolute top-3 left-3 bg-[#cc3366] text-white text-xs font-extrabold px-2.5 py-1 rounded-full shadow-sm">

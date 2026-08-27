@@ -141,6 +141,9 @@ export const AdminProducts: React.FC = () => {
                           src={product.mainImage}
                           alt={product.nameEn}
                           className="w-10 h-10 rounded object-contain bg-white p-0.5 border border-slate-700 shrink-0"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/images/products/pureghor_blackseed_honey_1787810945841.jpg';
+                          }}
                         />
                         <div className="min-w-0">
                           <p className="font-semibold text-slate-100 truncate max-w-xs">{product.nameBn}</p>

@@ -55,6 +55,9 @@ export const QuickViewModal: React.FC = () => {
               src={product.mainImage}
               alt={product.nameEn}
               className="max-h-full max-w-full object-contain"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/images/products/pureghor_blackseed_honey_1787810945841.jpg';
+              }}
             />
           </div>
 
