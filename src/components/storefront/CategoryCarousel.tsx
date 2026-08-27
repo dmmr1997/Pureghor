@@ -14,7 +14,7 @@ export const CategoryCarousel: React.FC = () => {
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-4 py-8">
+    <section id="pureghor-category-section" className="max-w-7xl mx-auto px-4 py-8">
       {/* Section Header */}
       <div className="text-center mb-6">
         <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">

@@ -1,188 +1,173 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useStore } from '../../context/StoreContext';
-import { ChevronLeft, ChevronRight, Sparkles, ShoppingBag, ShieldCheck } from 'lucide-react';
-import { api } from '../../services/api';
-import { Banner } from '../../types';
+import { Leaf, Sprout, ShieldCheck, ShoppingBag, ArrowRight } from 'lucide-react';
 
 export const HeroBanner: React.FC = () => {
   const { language, setCurrentView, setSelectedCategory } = useStore();
-  const [banners, setBanners] = useState<Banner[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    const fetchBanners = async () => {
-      try {
-        const data = await api.getBanners(true);
-        if (data && data.length > 0) {
-          setBanners(data);
-        }
-      } catch (e) {
-        console.error('Failed to load banners', e);
-      }
-    };
-    fetchBanners();
-  }, []);
-
-  useEffect(() => {
-    if (banners.length <= 1) return;
-    const interval = setInterval(() => {
-      setCurrentIndex(prev => (prev + 1) % banners.length);
-    }, 6000);
-    return () => clearInterval(interval);
-  }, [banners.length]);
-
-  const currentBanner = banners[currentIndex];
 
   return (
     <div className="max-w-7xl mx-auto px-4 pt-4 sm:pt-6">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
-        {/* Main Hero Card (Lush Green Organic Showcase matching screenshot) */}
-        <div className="lg:col-span-8 bg-[#003612] rounded-xl overflow-hidden shadow-sm relative min-h-[300px] sm:min-h-[360px] flex flex-col justify-between p-6 sm:p-10 text-white">
-          {/* Subtle Background Pattern */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#00381d] via-[#004d1a]/90 to-transparent z-0" />
-
-          {/* Decorative Fresh Ingredients Graphic on Right */}
-          <div className="absolute right-0 top-0 bottom-0 w-1/2 sm:w-3/5 opacity-80 sm:opacity-95 z-0 pointer-events-none overflow-hidden">
-            <img
-              src={
-                currentBanner?.imageUrl ||
-                'https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=900&auto=format&fit=crop&q=80'
-              }
-              alt="Organic Food"
-              className="w-full h-full object-cover object-center transform scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#003612] via-transparent to-transparent" />
-          </div>
-
-          {/* Content */}
-          <div className="relative z-10 max-w-md space-y-4">
-            {/* Guarantee Tag */}
-            <div className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-xs border border-white/20 px-3 py-1 rounded-full text-xs font-semibold text-amber-300">
-              <ShieldCheck size={14} />
-              <span>
-                {currentBanner
-                  ? language === 'bn'
-                    ? currentBanner.badgeBn
-                    : currentBanner.badgeEn
-                  : language === 'bn'
-                  ? '১০০% খাঁটি ও অর্গানিক গ্যারান্টি'
-                  : '100% Pure & Organic Guarantee'}
-              </span>
-            </div>
-
-            {/* Title */}
-            <h1 className="text-2xl sm:text-4xl font-extrabold leading-tight tracking-tight text-white drop-shadow-sm">
-              {currentBanner
-                ? language === 'bn'
-                  ? currentBanner.titleBn
-                  : currentBanner.titleEn
-                : language === 'bn'
-                ? 'প্রকৃতির বিশুদ্ধতায় প্রতিদিনের সুস্থতা'
-                : 'Pure Natural Goodness for Daily Vitality'}
-            </h1>
-
-            {/* Subtitle */}
-            <p className="text-xs sm:text-sm text-white/90 leading-relaxed font-normal">
-              {currentBanner
-                ? language === 'bn'
-                  ? currentBanner.subtitleBn
-                  : currentBanner.subtitleEn
-                : language === 'bn'
-                ? 'কেমিক্যালমুক্ত অর্গানিক খাবার, খাঁটি স্বাদ ও স্বাস্থ্যকর জীবনের বিশ্বস্ত ঠিকানা।'
-                : 'Chemical-free organic foods, authentic tastes, and your trusted home for healthy living.'}
-            </p>
-
-            {/* CTA Button */}
-            <div className="pt-2">
-              <button
-                onClick={() => {
-                  if (currentBanner?.targetCategory) {
-                    setSelectedCategory(currentBanner.targetCategory);
-                  }
-                  setCurrentView('catalog');
-                }}
-                className="bg-white hover:bg-amber-400 text-[#003612] hover:text-black font-bold px-6 py-2.5 rounded-md text-sm sm:text-base transition-all duration-200 shadow hover:shadow-md inline-flex items-center gap-2 cursor-pointer"
-              >
-                <ShoppingBag size={18} />
-                <span>
-                  {currentBanner
-                    ? language === 'bn'
-                      ? currentBanner.buttonTextBn
-                      : currentBanner.buttonTextEn
-                    : language === 'bn'
-                    ? 'এখনই কিনুন'
-                    : 'Shop Now'}
-                </span>
-              </button>
-            </div>
-          </div>
-
-          {/* Carousel Navigation Dots */}
-          {banners.length > 1 && (
-            <div className="relative z-10 flex items-center justify-between pt-4">
-              <div className="flex items-center gap-1.5">
-                {banners.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setCurrentIndex(i)}
-                    className={`h-2 rounded-full transition-all cursor-pointer ${
-                      currentIndex === i ? 'w-6 bg-amber-400' : 'w-2 bg-white/40'
-                    }`}
-                    aria-label={`Slide ${i + 1}`}
-                  />
-                ))}
-              </div>
-
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => setCurrentIndex(prev => (prev === 0 ? banners.length - 1 : prev - 1))}
-                  className="w-7 h-7 rounded-full bg-black/30 hover:bg-black/50 text-white flex items-center justify-center transition-colors cursor-pointer"
-                >
-                  <ChevronLeft size={16} />
-                </button>
-                <button
-                  onClick={() => setCurrentIndex(prev => (prev + 1) % banners.length)}
-                  className="w-7 h-7 rounded-full bg-black/30 hover:bg-black/50 text-white flex items-center justify-center transition-colors cursor-pointer"
-                >
-                  <ChevronRight size={16} />
-                </button>
-              </div>
-            </div>
-          )}
+      <div
+        id="pureghor-hero-banner"
+        className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg border border-emerald-900/10 bg-[#f7faf4] min-h-[480px] sm:min-h-[520px] md:min-h-[560px] lg:min-h-[600px] flex items-center"
+      >
+        {/* Background Store & Interior Image on the Right */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <img
+            src="/hero-pureghor-store.jpg"
+            alt="PureGhor Organic Store Counter"
+            className="w-full h-full object-cover object-right md:object-center"
+            referrerPolicy="no-referrer"
+          />
+          {/* Seamless Gradient Fade to blend cleanly with Left Typography */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#f7faf4] via-[#f7faf4]/95 via-35% md:via-48% to-transparent lg:to-transparent/10" />
+          {/* Subtle top/bottom edge soft vignette */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-transparent to-black/10" />
         </div>
 
-        {/* Side Promo Card (Matching Screenshot "100% ORGANIC FOOD - Feel Winter Wonders") */}
-        <div className="lg:col-span-4 bg-gradient-to-br from-[#0b4d2b] to-[#004d1a] rounded-xl overflow-hidden shadow-sm relative min-h-[220px] lg:min-h-[360px] flex flex-col justify-between p-6 text-white group">
-          <img
-            src="https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&auto=format&fit=crop&q=80"
-            alt="Organic Vegetables"
-            className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-40 group-hover:scale-105 transition-transform duration-500"
-          />
+        {/* Decorative Floating Leaves (Matching the screenshot artwork) */}
+        <div className="absolute -left-4 top-6 w-20 h-20 opacity-80 pointer-events-none z-10 animate-pulse-slow">
+          <svg viewBox="0 0 100 100" className="w-full h-full fill-[#52b202] drop-shadow-md">
+            <path d="M10,80 C30,30 70,20 90,10 C80,50 60,80 10,80 Z" />
+          </svg>
+        </div>
 
-          <div className="relative z-10 space-y-2">
-            <span className="bg-amber-400 text-gray-900 text-[11px] font-extrabold uppercase px-2 py-0.5 rounded tracking-wide">
-              {language === 'bn' ? 'শীতকালীন স্পেশাল' : 'SPECIAL SEASON'}
+        <div className="absolute left-1/4 -top-3 w-12 h-12 opacity-60 pointer-events-none z-10 rotate-45">
+          <svg viewBox="0 0 100 100" className="w-full h-full fill-[#004d1a]">
+            <path d="M10,80 C30,30 70,20 90,10 C80,50 60,80 10,80 Z" />
+          </svg>
+        </div>
+
+        <div className="absolute left-6 bottom-16 w-16 h-16 opacity-70 pointer-events-none z-10 -rotate-12">
+          <svg viewBox="0 0 100 100" className="w-full h-full fill-[#52b202] drop-shadow-sm">
+            <path d="M10,80 C30,30 70,20 90,10 C80,50 60,80 10,80 Z" />
+          </svg>
+        </div>
+
+        {/* Left Side Content & Typography */}
+        <div className="relative z-10 w-full max-w-2xl px-6 sm:px-10 md:px-14 py-10 sm:py-14 space-y-6 sm:space-y-7">
+          {/* Pill Badge: ১০০% প্রাকৃতিক ও বিশুদ্ধ */}
+          <div className="inline-flex items-center gap-2 bg-[#e8f7d4] border border-[#a6e260] px-4 py-1.5 rounded-full shadow-xs">
+            <div className="w-5 h-5 rounded-full bg-[#52b202] flex items-center justify-center text-white">
+              <Leaf size={12} className="stroke-[2.5]" />
+            </div>
+            <span className="text-xs sm:text-sm font-extrabold text-[#004d1a] tracking-wide">
+              {language === 'bn' ? '১০০% প্রাকৃতিক ও বিশুদ্ধ' : '100% Natural & Pure'}
             </span>
-            <h3 className="text-2xl sm:text-3xl font-black leading-tight tracking-tight uppercase">
-              100% <br />
-              <span className="text-amber-300">ORGANIC</span> <br />
-              FOOD
-            </h3>
-            <p className="text-xs text-white/90">
-              {language === 'bn' ? 'প্রকৃতির খাঁটি স্বাদে শীতের অনন্য আমেজ' : 'Feel Winter Wonders with Pure Taste'}
-            </p>
           </div>
 
-          <div className="relative z-10 pt-4">
+          {/* Main Title: বিশুদ্ধ খাবার, সুস্থ জীবনের সাথী */}
+          <div className="space-y-1">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-black leading-[1.18] text-[#004d1a] tracking-tight">
+              {language === 'bn' ? (
+                <>
+                  বিশুদ্ধ খাবার, <br />
+                  <span className="text-[#004d1a]">সুস্থ জীবনের সাথী</span>
+                </>
+              ) : (
+                <>
+                  Pure Food, <br />
+                  <span className="text-[#004d1a]">Healthy Life Partner</span>
+                </>
+              )}
+            </h1>
+          </div>
+
+          {/* Subtitle */}
+          <p className="text-sm sm:text-base md:text-lg text-gray-700 font-medium leading-relaxed max-w-xl">
+            {language === 'bn' ? (
+              <>
+                আপনার সুস্থ জীবনযাপনের জন্য বেছে নিন <br className="hidden sm:inline" />
+                ১০০% প্রাকৃতিক, অর্গানিক ও ভরসাযোগ্য পণ্য।
+              </>
+            ) : (
+              'Choose 100% natural, certified organic, and trustworthy foods for your healthy living.'
+            )}
+          </p>
+
+          {/* CTA Action Buttons */}
+          <div className="flex flex-wrap items-center gap-3.5 pt-1">
             <button
+              id="hero-order-now-btn"
               onClick={() => {
-                setSelectedCategory('cat-4');
+                setSelectedCategory('all');
                 setCurrentView('catalog');
               }}
-              className="bg-white hover:bg-amber-300 text-gray-900 text-xs font-extrabold uppercase px-5 py-2 rounded tracking-wider shadow transition-colors cursor-pointer"
+              className="bg-[#004d1a] hover:bg-[#52b202] text-white font-black px-7 py-3.5 rounded-xl text-sm sm:text-base flex items-center gap-2.5 shadow-md hover:shadow-xl transition-all duration-200 cursor-pointer transform hover:-translate-y-0.5"
             >
-              {language === 'bn' ? 'অর্ডার করুন' : 'ORDER NOW'}
+              <ShoppingBag size={19} />
+              <span>{language === 'bn' ? 'এখনই অর্ডার করুন' : 'Order Now'}</span>
+              <ArrowRight size={17} />
             </button>
+
+            <button
+              id="hero-explore-products-btn"
+              onClick={() => {
+                const el = document.getElementById('pureghor-category-section');
+                if (el) {
+                  el.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  setCurrentView('catalog');
+                }
+              }}
+              className="bg-white/80 hover:bg-white text-[#004d1a] border-2 border-[#004d1a]/20 hover:border-[#004d1a] font-bold px-6 py-3.5 rounded-xl text-sm sm:text-base transition-all duration-200 shadow-xs cursor-pointer"
+            >
+              <span>{language === 'bn' ? 'পণ্যসমূহ দেখুন' : 'Explore Items'}</span>
+            </button>
+          </div>
+
+          {/* 3 Quality & Trust Badges (Exact design from the screenshot) */}
+          <div className="pt-4 border-t border-emerald-900/10 flex flex-wrap sm:flex-nowrap items-center gap-4 sm:gap-6">
+            {/* Feature 1: ১০০% প্রাকৃতিক */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-[#52b202] text-white flex items-center justify-center shrink-0 shadow-xs">
+                <Leaf size={20} className="stroke-[2.2]" />
+              </div>
+              <div>
+                <h4 className="text-xs sm:text-sm font-extrabold text-[#004d1a] leading-tight">
+                  {language === 'bn' ? '১০০% প্রাকৃতিক' : '100% Natural'}
+                </h4>
+                <p className="text-[11px] sm:text-xs text-gray-600 font-medium">
+                  {language === 'bn' ? 'নিরাপদ ও বিশুদ্ধ' : 'Safe & Pure'}
+                </p>
+              </div>
+            </div>
+
+            {/* Vertical Separator */}
+            <div className="hidden sm:block w-px h-8 bg-emerald-900/15" />
+
+            {/* Feature 2: অর্গানিক পণ্য */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-[#52b202] text-white flex items-center justify-center shrink-0 shadow-xs">
+                <Sprout size={20} className="stroke-[2.2]" />
+              </div>
+              <div>
+                <h4 className="text-xs sm:text-sm font-extrabold text-[#004d1a] leading-tight">
+                  {language === 'bn' ? 'অর্গানিক পণ্য' : 'Organic Product'}
+                </h4>
+                <p className="text-[11px] sm:text-xs text-gray-600 font-medium">
+                  {language === 'bn' ? 'রাসায়নিকমুক্ত' : 'Chemical Free'}
+                </p>
+              </div>
+            </div>
+
+            {/* Vertical Separator */}
+            <div className="hidden sm:block w-px h-8 bg-emerald-900/15" />
+
+            {/* Feature 3: বিশ্বস্ত মান */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-[#52b202] text-white flex items-center justify-center shrink-0 shadow-xs">
+                <ShieldCheck size={20} className="stroke-[2.2]" />
+              </div>
+              <div>
+                <h4 className="text-xs sm:text-sm font-extrabold text-[#004d1a] leading-tight">
+                  {language === 'bn' ? 'বিশ্বস্ত মান' : 'Trusted Quality'}
+                </h4>
+                <p className="text-[11px] sm:text-xs text-gray-600 font-medium">
+                  {language === 'bn' ? 'ল্যাব টেস্টেড' : 'Lab Tested'}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
