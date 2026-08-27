@@ -150,62 +150,135 @@ export const CheckoutView: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {orderConfirmedData ? (
-        /* Order Success Celebratory View */
-        <div className="max-w-2xl mx-auto bg-white rounded-xl border border-gray-200 p-6 sm:p-10 text-center space-y-6 shadow-sm">
-          <div className="w-20 h-20 bg-emerald-100 text-[#004d1a] rounded-full flex items-center justify-center mx-auto animate-bounce">
-            <CheckCircle2 size={44} />
-          </div>
-
-          <div>
+        /* Enhanced Order Success Receipt View */
+        <div className="max-w-2xl mx-auto bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 space-y-5 shadow-sm">
+          <div className="text-center space-y-2">
+            <div className="w-16 h-16 bg-emerald-100 text-[#004d1a] rounded-full flex items-center justify-center mx-auto animate-bounce">
+              <CheckCircle2 size={40} />
+            </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900">
               {language === 'bn' ? 'অভিনন্দন! আপনার অর্ডারটি নিশ্চিত হয়েছে' : 'Thank You! Order Confirmed'}
             </h2>
-            <p className="text-xs sm:text-sm text-gray-600 mt-1.5">
+            <p className="text-xs sm:text-sm text-gray-600">
               {language === 'bn'
-                ? `অর্ডার নম্বর #${orderConfirmedData.orderNumber} এর বিস্তারিত নিচে দেওয়া হলো:`
-                : `Details for order #${orderConfirmedData.orderNumber} are below:`}
+                ? `অর্ডার নম্বর #${orderConfirmedData.orderNumber} এর বিস্তারিত রসিদ নিচে দেওয়া হলো:`
+                : `Invoice details for order #${orderConfirmedData.orderNumber} are below:`}
             </p>
           </div>
 
-          <div className="bg-gray-50 rounded-xl p-5 border border-gray-200 text-left space-y-3 text-xs sm:text-sm">
-            <div className="flex justify-between border-b border-gray-200 pb-2">
-              <span className="text-gray-500">{language === 'bn' ? 'অর্ডার নম্বর' : 'Order ID'}:</span>
-              <span className="font-extrabold text-[#004d1a]">{orderConfirmedData.orderNumber}</span>
+          {/* Printable Invoice Receipt Card */}
+          <div className="bg-slate-50 border border-emerald-500/30 rounded-xl p-4 sm:p-6 space-y-4 text-xs">
+            {/* Header Strip */}
+            <div className="flex items-center justify-between border-b border-gray-200 pb-3">
+              <div>
+                <span className="text-[10px] uppercase font-bold text-gray-400">অর্ডার ইনভয়েস নম্বর</span>
+                <div className="font-extrabold text-base sm:text-lg text-[#004d1a] tracking-wider">
+                  #{orderConfirmedData.orderNumber}
+                </div>
+              </div>
+              <div className="text-right">
+                <span className="text-[10px] text-gray-400 font-medium">অর্ডারের তারিখ</span>
+                <div className="font-semibold text-gray-700">
+                  {new Date(orderConfirmedData.createdAt).toLocaleDateString('bn-BD', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                  })}
+                </div>
+              </div>
             </div>
-            <div className="flex justify-between border-b border-gray-200 pb-2">
-              <span className="text-gray-500">{language === 'bn' ? 'গ্রাহকের নাম' : 'Customer'}:</span>
-              <span className="font-semibold">{orderConfirmedData.customer.name}</span>
+
+            {/* Customer Details */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-white p-3.5 rounded-lg border border-gray-200/80">
+              <div>
+                <span className="text-gray-400 text-[10px] block">গ্রাহকের নাম:</span>
+                <span className="font-bold text-gray-800 text-sm">{orderConfirmedData.customer?.name}</span>
+              </div>
+              <div>
+                <span className="text-gray-400 text-[10px] block">মোবাইল নম্বর:</span>
+                <span className="font-bold text-gray-800 text-sm">{orderConfirmedData.customer?.phone}</span>
+              </div>
+              <div className="sm:col-span-2">
+                <span className="text-gray-400 text-[10px] block">ডেলিভারি ঠিকানা:</span>
+                <span className="font-semibold text-gray-700 leading-tight">
+                  {orderConfirmedData.customer?.address}, {orderConfirmedData.customer?.district}
+                </span>
+              </div>
             </div>
-            <div className="flex justify-between border-b border-gray-200 pb-2">
-              <span className="text-gray-500">{language === 'bn' ? 'মোবাইল নম্বর' : 'Phone'}:</span>
-              <span className="font-semibold">{orderConfirmedData.customer.phone}</span>
+
+            {/* Items Summary */}
+            <div className="space-y-2 pt-1">
+              <span className="text-[10px] uppercase font-bold text-gray-400 block">অর্ডারকৃত পণ্যসমূহ:</span>
+              {orderConfirmedData.items?.map((it: any, idx: number) => (
+                <div key={idx} className="flex items-center justify-between bg-white p-2.5 rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2.5">
+                    {it.image && (
+                      <img
+                        src={it.image}
+                        alt={it.nameEn}
+                        className="w-10 h-10 object-contain rounded bg-slate-50 border p-0.5"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/images/products/pureghor_blackseed_honey_1787810945841.jpg';
+                        }}
+                      />
+                    )}
+                    <div>
+                      <h5 className="font-bold text-gray-900 text-xs">{it.nameBn || it.nameEn}</h5>
+                      <span className="text-[10px] text-gray-500 font-medium">
+                        {it.weight || ''} × {it.quantity} টি (প্রতি পিস ৳{it.price})
+                      </span>
+                    </div>
+                  </div>
+                  <span className="font-extrabold text-gray-900">৳{it.price * it.quantity}</span>
+                </div>
+              ))}
             </div>
-            <div className="flex justify-between border-b border-gray-200 pb-2">
-              <span className="text-gray-500">{language === 'bn' ? 'ডেলিভারি ঠিকানা' : 'Address'}:</span>
-              <span className="font-semibold text-right max-w-xs">{orderConfirmedData.customer.address}</span>
-            </div>
-            <div className="flex justify-between border-b border-gray-200 pb-2">
-              <span className="text-gray-500">{language === 'bn' ? 'পেমেন্ট পদ্ধতি' : 'Payment'}:</span>
-              <span className="font-semibold uppercase">{orderConfirmedData.paymentMethod}</span>
-            </div>
-            <div className="flex justify-between text-base font-extrabold text-[#004d1a] pt-1">
-              <span>{language === 'bn' ? 'সর্বমোট পরিশোধযোগ্য' : 'Total Amount'}:</span>
-              <span>৳{orderConfirmedData.total}</span>
+
+            {/* Financial Summary */}
+            <div className="space-y-1.5 pt-2 border-t border-gray-200 text-xs">
+              <div className="flex justify-between text-gray-600">
+                <span>পণ্যের উপমোট (Subtotal):</span>
+                <span>৳{orderConfirmedData.subtotal}</span>
+              </div>
+              {orderConfirmedData.discount > 0 && (
+                <div className="flex justify-between text-emerald-700 font-medium">
+                  <span>কুপন ছাড় (Discount):</span>
+                  <span>-৳{orderConfirmedData.discount}</span>
+                </div>
+              )}
+              <div className="flex justify-between text-gray-600">
+                <span>ডেলিভারি চার্জ:</span>
+                <span>{orderConfirmedData.shippingFee === 0 ? 'ফ্রি (Free)' : `৳${orderConfirmedData.shippingFee}`}</span>
+              </div>
+              <div className="flex justify-between text-base font-extrabold text-[#004d1a] pt-2 border-t border-gray-300">
+                <span>সর্বমোট প্রদেয় (Cash on Delivery):</span>
+                <span>৳{orderConfirmedData.total}</span>
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          {/* Action Buttons */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
             <button
-              onClick={() => setCurrentView('track-order')}
-              className="bg-[#004d1a] hover:bg-[#003612] text-white px-6 py-3 rounded-lg font-bold text-xs sm:text-sm cursor-pointer shadow"
+              type="button"
+              onClick={() => window.print()}
+              className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 px-4 rounded-lg text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow"
             >
-              {language === 'bn' ? 'অর্ডার ট্র্যাক ও রসিদ প্রিন্ট করুন' : 'Track Order & Print Receipt'}
+              <span>🖨️ রসিদ প্রিন্ট করুন</span>
             </button>
             <button
-              onClick={() => setCurrentView('home')}
-              className="border border-gray-300 hover:bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-bold text-xs sm:text-sm cursor-pointer"
+              type="button"
+              onClick={() => setCurrentView('track-order')}
+              className="bg-[#004d1a] hover:bg-[#003612] text-white font-bold py-3 px-4 rounded-lg text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow"
             >
-              {language === 'bn' ? 'হোমপেজে ফিরে যান' : 'Back to Homepage'}
+              <span>🚚 অর্ডার ট্র্যাক করুন</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setCurrentView('home')}
+              className="border border-gray-300 hover:bg-gray-100 text-gray-700 font-bold py-3 px-4 rounded-lg text-xs flex items-center justify-center cursor-pointer transition-colors"
+            >
+              <span>হোমপেজে ফিরে যান</span>
             </button>
           </div>
         </div>

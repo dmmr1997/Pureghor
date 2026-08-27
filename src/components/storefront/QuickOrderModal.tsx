@@ -182,54 +182,136 @@ export const QuickOrderModal: React.FC = () => {
         {/* Modal Body */}
         <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4">
           {orderSuccessData ? (
-            /* Order Success View */
-            <div className="text-center py-6 space-y-4">
-              <div className="w-16 h-16 bg-emerald-100 text-[#004d1a] rounded-full flex items-center justify-center mx-auto animate-bounce">
-                <CheckCircle2 size={36} />
-              </div>
-              <h4 className="text-xl font-bold text-gray-900">
-                {language === 'bn' ? 'ধন্যবাদ! আপনার অর্ডারটি নিশ্চিত হয়েছে' : 'Thank You! Order Confirmed'}
-              </h4>
-              <p className="text-xs sm:text-sm text-gray-600 max-w-md mx-auto">
-                {language === 'bn'
-                  ? 'আমাদের কাস্টমার কেয়ার প্রতিনিধি শীঘ্রই আপনার সাথে যোগাযোগ করবেন।'
-                  : 'Our customer support representative will call you shortly to confirm.'}
-              </p>
-
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 max-w-sm mx-auto text-left space-y-2 text-xs sm:text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-500">{language === 'bn' ? 'অর্ডার নম্বর:' : 'Order Number:'}</span>
-                  <span className="font-bold text-[#004d1a]">{orderSuccessData.orderNumber}</span>
+            /* Enhanced Order Success Receipt View */
+            <div className="py-2 space-y-4">
+              <div className="text-center space-y-2">
+                <div className="w-14 h-14 bg-emerald-100 text-[#004d1a] rounded-full flex items-center justify-center mx-auto animate-bounce">
+                  <CheckCircle2 size={32} />
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">{language === 'bn' ? 'মোট মূল্য:' : 'Total Amount:'}</span>
-                  <span className="font-bold text-gray-900">৳{orderSuccessData.total}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">{language === 'bn' ? 'পেমেন্ট পদ্ধতি:' : 'Payment:'}</span>
-                  <span className="font-medium uppercase">{orderSuccessData.paymentMethod}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">{language === 'bn' ? 'ডেলিভারি ঠিকানা:' : 'Address:'}</span>
-                  <span className="font-medium text-right max-w-[180px] truncate">{orderSuccessData.customer.address}</span>
-                </div>
+                <h4 className="text-xl font-extrabold text-gray-900">
+                  {language === 'bn' ? 'ধন্যবাদ! আপনার অর্ডারটি নিশ্চিত হয়েছে' : 'Thank You! Order Confirmed'}
+                </h4>
+                <p className="text-xs text-gray-600">
+                  {language === 'bn'
+                    ? 'আমাদের কাস্টমার কেয়ার প্রতিনিধি শীঘ্রই আপনার নম্বরে কল করে ডেলিভারি নিশ্চিত করবেন।'
+                    : 'Our customer representative will call you shortly to confirm delivery.'}
+                </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-2.5 justify-center pt-2">
+              {/* Printable Invoice Receipt Card */}
+              <div id="pureghor-printable-receipt" className="bg-slate-50 border border-emerald-500/30 rounded-xl p-4 sm:p-5 space-y-3 text-xs">
+                {/* Header Strip */}
+                <div className="flex items-center justify-between border-b border-gray-200 pb-2.5">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-gray-400">অর্ডার ইনভয়েস নম্বর</span>
+                    <div className="font-extrabold text-sm sm:text-base text-[#004d1a] tracking-wider">
+                      #{orderSuccessData.orderNumber}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] text-gray-400 font-medium">অর্ডারের সময়</span>
+                    <div className="font-semibold text-gray-700">
+                      {new Date(orderSuccessData.createdAt).toLocaleDateString('bn-BD', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Customer Details */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-white p-3 rounded-lg border border-gray-200/80">
+                  <div>
+                    <span className="text-gray-400 text-[10px] block">গ্রাহকের নাম:</span>
+                    <span className="font-bold text-gray-800">{orderSuccessData.customer?.name}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 text-[10px] block">মোবাইল নম্বর:</span>
+                    <span className="font-bold text-gray-800">{orderSuccessData.customer?.phone}</span>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <span className="text-gray-400 text-[10px] block">ডেলিভারি ঠিকানা:</span>
+                    <span className="font-semibold text-gray-700 leading-tight">
+                      {orderSuccessData.customer?.address}, {orderSuccessData.customer?.district}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Items Summary */}
+                <div className="space-y-1.5 pt-1">
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block">অর্ডারকৃত পণ্য:</span>
+                  {orderSuccessData.items?.map((it: any, idx: number) => (
+                    <div key={idx} className="flex items-center justify-between bg-white p-2.5 rounded-lg border border-gray-200">
+                      <div className="flex items-center gap-2.5">
+                        <img
+                          src={it.image || product.mainImage}
+                          alt={it.nameEn}
+                          className="w-9 h-9 object-contain rounded bg-slate-50 border p-0.5"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/images/products/pureghor_blackseed_honey_1787810945841.jpg';
+                          }}
+                        />
+                        <div>
+                          <h5 className="font-bold text-gray-900 text-xs">{it.nameBn || it.nameEn}</h5>
+                          <span className="text-[10px] text-gray-500 font-medium">
+                            {it.weight || ''} × {it.quantity} টি
+                          </span>
+                        </div>
+                      </div>
+                      <span className="font-extrabold text-gray-900">৳{it.price * it.quantity}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Calculation Summary */}
+                <div className="space-y-1 pt-2 border-t border-gray-200 text-xs">
+                  <div className="flex justify-between text-gray-600">
+                    <span>পণ্যের উপমোট (Subtotal):</span>
+                    <span>৳{orderSuccessData.subtotal}</span>
+                  </div>
+                  {orderSuccessData.discount > 0 && (
+                    <div className="flex justify-between text-emerald-700 font-medium">
+                      <span>কুপন ছাড় (Discount):</span>
+                      <span>-৳{orderSuccessData.discount}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-gray-600">
+                    <span>ডেলিভারি চার্জ:</span>
+                    <span>{orderSuccessData.shippingFee === 0 ? 'ফ্রি (Free)' : `৳${orderSuccessData.shippingFee}`}</span>
+                  </div>
+                  <div className="flex justify-between text-sm font-extrabold text-[#004d1a] pt-1.5 border-t border-gray-300">
+                    <span>সর্বমোট পরিশোধযোগ্য (Cash on Delivery):</span>
+                    <span>৳{orderSuccessData.total}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
                 <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                >
+                  <span>🖨️ রসিদ প্রিন্ট করুন</span>
+                </button>
+                <button
+                  type="button"
                   onClick={() => {
                     setQuickOrderProduct(null);
                     setCurrentView('track-order');
                   }}
-                  className="bg-[#004d1a] hover:bg-[#003612] text-white px-5 py-2 rounded-md font-semibold text-xs sm:text-sm transition-colors cursor-pointer"
+                  className="bg-[#004d1a] hover:bg-[#003612] text-white font-bold py-2.5 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow"
                 >
-                  {language === 'bn' ? 'অর্ডার ট্র্যাক করুন' : 'Track Order'}
+                  <span>🚚 অর্ডার ট্র্যাক করুন</span>
                 </button>
                 <button
+                  type="button"
                   onClick={() => setQuickOrderProduct(null)}
-                  className="border border-gray-300 hover:bg-gray-100 text-gray-700 px-5 py-2 rounded-md font-semibold text-xs sm:text-sm transition-colors cursor-pointer"
+                  className="border border-gray-300 hover:bg-gray-100 text-gray-700 font-bold py-2.5 px-3 rounded-lg text-xs flex items-center justify-center cursor-pointer transition-colors"
                 >
-                  {language === 'bn' ? 'আরো কেনাকাটা করুন' : 'Continue Shopping'}
+                  <span>হোমে ফিরে যান</span>
                 </button>
               </div>
             </div>

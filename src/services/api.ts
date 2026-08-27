@@ -200,37 +200,46 @@ export const api = {
   },
 
   // Banners
-  async getBanners(activeOnly = true): Promise<Banner[]> {
+  async getBanners(activeOnly = false): Promise<Banner[]> {
     try {
-      const res = await fetch(`${API_BASE}/banners?active=${activeOnly}`);
-      if (res.ok) return res.json();
-    } catch {}
-    return initialBanners;
+      return await firestoreService.getBanners(activeOnly);
+    } catch {
+      return initialBanners;
+    }
   },
 
   async createBanner(banner: Partial<Banner>): Promise<Banner> {
-    const res = await fetch(`${API_BASE}/banners`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(banner),
-    });
-    if (!res.ok) throw new Error('Failed to create banner');
-    return res.json();
+    const id = banner.id || `ban-${Date.now()}`;
+    const newBanner: Banner = {
+      id,
+      titleBn: banner.titleBn || '',
+      titleEn: banner.titleEn || banner.titleBn || '',
+      subtitleBn: banner.subtitleBn,
+      subtitleEn: banner.subtitleEn,
+      badgeTextBn: banner.badgeTextBn,
+      badgeTextEn: banner.badgeTextEn,
+      image: banner.image || 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=800&q=80',
+      bgGradient: banner.bgGradient || 'from-[#004d1a] via-[#004317] to-[#00280d]',
+      buttonTextBn: banner.buttonTextBn || 'এখনই অর্ডার করুন',
+      buttonTextEn: banner.buttonTextEn || 'Order Now',
+      linkUrl: banner.linkUrl || '/catalog',
+      order: banner.order || 1,
+      isActive: banner.isActive !== undefined ? banner.isActive : true,
+    };
+    await firestoreService.saveBanner(newBanner);
+    return newBanner;
   },
 
   async updateBanner(id: string, banner: Partial<Banner>): Promise<Banner> {
-    const res = await fetch(`${API_BASE}/banners/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(banner),
-    });
-    if (!res.ok) throw new Error('Failed to update banner');
-    return res.json();
+    const banners = await firestoreService.getBanners(false);
+    const existing = banners.find(b => b.id === id) || initialBanners.find(b => b.id === id);
+    const updated: Banner = { ...(existing as Banner), ...banner, id };
+    await firestoreService.saveBanner(updated);
+    return updated;
   },
 
   async deleteBanner(id: string): Promise<boolean> {
-    const res = await fetch(`${API_BASE}/banners/${id}`, { method: 'DELETE' });
-    return res.ok;
+    return firestoreService.deleteBanner(id);
   },
 
   // Coupons
@@ -350,43 +359,49 @@ export const api = {
     const randomDigits = Math.floor(10000 + Math.random() * 90000);
     const orderNumber = `PG-${randomDigits}`;
     const id = `ord-${Date.now()}`;
+    const now = new Date().toISOString();
+
+    const customerInfo = {
+      name: orderData.customer?.name || orderData.customerName || orderData.name || 'Customer',
+      phone: orderData.customer?.phone || orderData.customerPhone || orderData.phone || '',
+      email: orderData.customer?.email || orderData.customerEmail || orderData.email || '',
+      address: orderData.customer?.address || orderData.shippingAddress || orderData.address || '',
+      city: orderData.customer?.city || orderData.city || 'ঢাকা',
+      district: orderData.customer?.district || orderData.district || 'ঢাকা',
+      notes: orderData.customer?.notes || orderData.deliveryNotes || orderData.notes || '',
+    };
 
     const newOrder: Order = {
       id,
       orderNumber,
-      customer: {
-        name: orderData.customerName || orderData.customer?.name || 'Customer',
-        phone: orderData.customerPhone || orderData.customer?.phone || '',
-        email: orderData.customerEmail || orderData.customer?.email || '',
-        address: orderData.shippingAddress || orderData.customer?.address || '',
-        city: orderData.city || orderData.customer?.city || 'Dhaka',
-        district: orderData.district || orderData.customer?.district || 'Dhaka',
-        notes: orderData.deliveryNotes || '',
-      },
+      customer: customerInfo,
       items: orderData.items || [],
-      subtotal: orderData.subtotal || 0,
-      shippingFee: orderData.shippingFee || orderData.deliveryCharge || 0,
-      discount: orderData.discount || 0,
-      total: orderData.total || 0,
+      subtotal: Number(orderData.subtotal) || 0,
+      shippingFee: Number(orderData.shippingFee ?? orderData.deliveryCharge) || 0,
+      discount: Number(orderData.discount) || 0,
+      total: Number(orderData.total) || 0,
       paymentMethod: orderData.paymentMethod || 'cod',
-      paymentStatus: 'pending',
+      paymentStatus: orderData.paymentMethod === 'cod' ? 'pending' : 'paid',
+      paymentTransactionId: orderData.paymentTransactionId || '',
       orderStatus: 'pending',
       trackingHistory: [
         {
           status: 'pending',
-          titleBn: 'অর্ডার গ্রহণ করা হয়েছে',
+          titleBn: 'অর্ডার সফলভাবে গ্রহণ করা হয়েছে',
           titleEn: 'Order Placed Successfully',
-          timestamp: new Date().toISOString(),
-          note: 'আমাদের প্রতিনিধি শীঘ্রই আপনার সাথে যোগাযোগ করবেন।',
+          timestamp: now,
+          note: 'আমাদের প্রতিনিধি শীঘ্রই আপনার সাথে ফোনে যোগাযোগ করে অর্ডার কনফার্ম করবেন।',
         },
       ],
-      couponCode: orderData.couponCode || undefined,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      couponCode: orderData.couponCode || '',
+      createdAt: now,
+      updatedAt: now,
     };
 
+    // Save to Firestore Database
     await firestoreService.createOrder(newOrder);
 
+    // Also sync to memory/server API if available
     try {
       await fetch(`${API_BASE}/orders`, {
         method: 'POST',
@@ -487,13 +502,55 @@ export const api = {
   // Customers
   async getCustomers(query?: string): Promise<{ customers: CustomerUser[]; total: number }> {
     try {
-      const res = await fetch(`${API_BASE}/customers${query ? `?search=${encodeURIComponent(query)}` : ''}`);
-      if (res.ok) {
-        const data = await res.json();
-        return Array.isArray(data) ? { customers: data, total: data.length } : data;
+      const orders = await firestoreService.getOrders();
+      const customerMap = new Map<string, CustomerUser>();
+
+      // Seed initial customers
+      initialCustomers.forEach(c => customerMap.set(c.phone, { ...c }));
+
+      // Aggregate from real orders
+      orders.forEach(order => {
+        const phone = order.customer.phone;
+        if (!phone) return;
+
+        if (customerMap.has(phone)) {
+          const existing = customerMap.get(phone)!;
+          existing.totalOrders = (existing.totalOrders || 0) + 1;
+          existing.totalSpent = (existing.totalSpent || 0) + order.total;
+          if (order.customer.address) existing.address = order.customer.address;
+          if (order.customer.district) existing.district = order.customer.district;
+        } else {
+          customerMap.set(phone, {
+            id: `cust-${phone.replace(/[^0-9]/g, '')}`,
+            name: order.customer.name || 'সম্মানিত গ্রাহক',
+            phone: phone,
+            email: order.customer.email,
+            address: order.customer.address,
+            city: order.customer.city || 'ঢাকা',
+            district: order.customer.district || 'ঢাকা',
+            totalOrders: 1,
+            totalSpent: order.total,
+            createdAt: order.createdAt || new Date().toISOString(),
+          });
+        }
+      });
+
+      let list = Array.from(customerMap.values());
+      if (query) {
+        const q = query.toLowerCase().trim();
+        list = list.filter(
+          c =>
+            c.name.toLowerCase().includes(q) ||
+            c.phone.includes(q) ||
+            (c.address && c.address.toLowerCase().includes(q))
+        );
       }
-    } catch {}
-    return { customers: [], total: 0 };
+
+      list.sort((a, b) => (b.totalSpent || 0) - (a.totalSpent || 0));
+      return { customers: list, total: list.length };
+    } catch {
+      return { customers: initialCustomers, total: initialCustomers.length };
+    }
   },
 
   async updateCustomer(id: string, update: Partial<CustomerUser>): Promise<CustomerUser> {

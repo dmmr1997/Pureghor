@@ -67,6 +67,25 @@ export const COLLECTIONS = {
   CUSTOMERS: 'customers',
 };
 
+// Helper to recursively remove undefined values so Firestore never throws
+function cleanForFirestore<T>(obj: T): T {
+  if (obj === null || obj === undefined) return null as any;
+  if (Array.isArray(obj)) {
+    return obj.map(item => cleanForFirestore(item)) as any;
+  }
+  if (typeof obj === 'object') {
+    const cleaned: any = {};
+    for (const key of Object.keys(obj as any)) {
+      const val = (obj as any)[key];
+      if (val !== undefined) {
+        cleaned[key] = cleanForFirestore(val);
+      }
+    }
+    return cleaned;
+  }
+  return obj;
+}
+
 /**
  * Initialize Firestore database with seed data if it's currently empty
  */
@@ -223,8 +242,9 @@ export const firestoreService = {
 
   async createOrder(order: Order): Promise<Order> {
     try {
+      const cleaned = cleanForFirestore(order);
       const ordRef = doc(db, COLLECTIONS.ORDERS, order.id);
-      await setDoc(ordRef, order);
+      await setDoc(ordRef, cleaned);
       return order;
     } catch (err) {
       console.error('Failed to create order in Firestore:', err);
@@ -234,8 +254,9 @@ export const firestoreService = {
 
   async updateOrder(orderId: string, updates: Partial<Order>): Promise<Order | null> {
     try {
+      const cleaned = cleanForFirestore(updates);
       const ordRef = doc(db, COLLECTIONS.ORDERS, orderId);
-      await updateDoc(ordRef, updates);
+      await updateDoc(ordRef, cleaned);
       const snap = await getDoc(ordRef);
       return snap.exists() ? ({ ...snap.data(), id: snap.id } as Order) : null;
     } catch (err) {
@@ -270,6 +291,45 @@ export const firestoreService = {
   async deleteCoupon(couponId: string): Promise<boolean> {
     try {
       await deleteDoc(doc(db, COLLECTIONS.COUPONS, couponId));
+      return true;
+    } catch (err) {
+      return false;
+    }
+  },
+
+  // Banners
+  async getBanners(activeOnly = true): Promise<Banner[]> {
+    try {
+      const snap = await getDocs(collection(db, COLLECTIONS.BANNERS));
+      if (!snap.empty) {
+        let list = snap.docs.map(d => ({ ...d.data(), id: d.id } as Banner));
+        if (activeOnly) {
+          list = list.filter(b => b.isActive);
+        }
+        return list.sort((a, b) => (a.order || 0) - (b.order || 0));
+      }
+      await seedFirestoreIfEmpty();
+      return activeOnly ? initialBanners.filter(b => b.isActive) : initialBanners;
+    } catch (err) {
+      console.warn('Firestore getBanners error, falling back:', err);
+      return activeOnly ? initialBanners.filter(b => b.isActive) : initialBanners;
+    }
+  },
+
+  async saveBanner(banner: Banner): Promise<Banner> {
+    try {
+      const banRef = doc(db, COLLECTIONS.BANNERS, banner.id);
+      await setDoc(banRef, banner, { merge: true });
+      return banner;
+    } catch (err) {
+      console.warn('Firestore saveBanner error:', err);
+      return banner;
+    }
+  },
+
+  async deleteBanner(bannerId: string): Promise<boolean> {
+    try {
+      await deleteDoc(doc(db, COLLECTIONS.BANNERS, bannerId));
       return true;
     } catch (err) {
       return false;
@@ -321,6 +381,19 @@ export const firestoreService = {
       return review;
     } catch (err) {
       return review;
+    }
+  },
+
+  // Customers
+  async getCustomers(): Promise<CustomerUser[]> {
+    try {
+      const snap = await getDocs(collection(db, COLLECTIONS.CUSTOMERS));
+      if (!snap.empty) {
+        return snap.docs.map(d => ({ ...d.data(), id: d.id } as CustomerUser));
+      }
+      return [];
+    } catch (err) {
+      return [];
     }
   },
 };

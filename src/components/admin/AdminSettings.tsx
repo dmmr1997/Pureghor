@@ -255,6 +255,35 @@ export const AdminSettings: React.FC = () => {
           </div>
         </div>
 
+        {/* Reset / Restore Demo Data */}
+        <div className="bg-rose-950/20 border border-rose-900/40 rounded-xl p-5 space-y-3">
+          <h3 className="font-bold text-sm text-rose-300 flex items-center gap-2">
+            <ShieldCheck size={16} className="text-rose-400" />
+            <span>৫. ডাটাবেস রিস্টোর ও প্রাথমিক পণ্য ডাটা সিঙ্ক (Reset / Seed)</span>
+          </h3>
+          <p className="text-xs text-slate-400">
+            যদি কোনো কারণে প্রোডাক্ট ক্যাটালগ বা ব্যানার রিসেট করার প্রয়োজন হয়, তবে নিচের বোতামটি চাপুন।
+          </p>
+          <button
+            type="button"
+            onClick={async () => {
+              if (confirm('আপনি কি ডাটাবেস প্রাথমিক ডেমো পণ্যে রিস্টোর করতে চান?')) {
+                try {
+                  await api.resetDatabase();
+                  await refreshSettings();
+                  addToast('ডাটাবেস সফলভাবে রিসেট ও সিঙ্ক করা হয়েছে!', 'success');
+                  window.location.reload();
+                } catch (e) {
+                  addToast('রিসেট করা সম্ভব হয়নি', 'error');
+                }
+              }
+            }}
+            className="bg-rose-900/50 hover:bg-rose-900/80 text-rose-200 border border-rose-700/60 px-4 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors"
+          >
+            ডিফল্ট ডাটাবেস ও প্রোডাক্ট রিস্টোর করুন
+          </button>
+        </div>
+
         {/* Save Button */}
         <div className="flex justify-end pt-2">
           <button
